@@ -13,70 +13,48 @@ async function geocodeZip(zip: string): Promise<GeocodeResult | null> {
     return null;
   }
 
+  // Use Places API (New) Text Search for geocoding — avoids needing the
+  // separate legacy Geocoding API, which requires its own API restriction
+  // entry on the key. This only needs "Places API (New)" enabled.
   try {
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(zip)}&key=${GOOGLE_API_KEY}`;
-    console.log('[Places] Geocoding ZIP:', zip);
-    const res = await fetch(url);
-    const data = await res.json();
+    const url = 'https://places.googleapis.com/v1/places:searchText';
+    const body = {
+      textQuery: `${zip}, USA`,
+      maxResultCount: 1,
+    };
 
-    if (data.status !== 'OK') {
-      console.error('[Places] Geocoding failed:', data.status, data.error_message || '');
-      // Fallback: use the Geocoding via Places Text Search to get coords
-      return geocodeZipViaPlaces(zip);
-    }
+    console.log('[Places] Geocoding ZIP via Text Search:', zip);
+    console.log('[Places] Request URL:', url);
+    console.log('[Places] API key present:', !!GOOGLE_API_KEY, '| length:', GOOGLE_API_KEY.length);
 
-    const location = data.results?.[0]?.geometry?.location;
-    if (location) {
-      console.log('[Places] Geocoded ZIP to:', location.lat, location.lng);
-      return location;
-    }
-
-    console.error('[Places] Geocoding returned no results for ZIP:', zip);
-    return null;
-  } catch (err) {
-    console.error('[Places] Geocoding fetch error:', err);
-    return geocodeZipViaPlaces(zip);
-  }
-}
-
-// Fallback geocoding using Places API Text Search (in case Geocoding API isn't enabled)
-async function geocodeZipViaPlaces(zip: string): Promise<GeocodeResult | null> {
-  try {
-    console.log('[Places] Trying Text Search fallback for geocoding ZIP:', zip);
-    const res = await fetch(
-      'https://places.googleapis.com/v1/places:searchText',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': GOOGLE_API_KEY,
-          'X-Goog-FieldMask': 'places.location',
-        },
-        body: JSON.stringify({
-          textQuery: `${zip}, USA`,
-          maxResultCount: 1,
-        }),
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': GOOGLE_API_KEY,
+        'X-Goog-FieldMask': 'places.location',
       },
-    );
+      body: JSON.stringify(body),
+    });
 
     const data = await res.json();
-    console.log('[Places] Text Search geocode response status:', res.status);
+    console.log('[Places] Geocode response status:', res.status);
 
-    if (data.error) {
-      console.error('[Places] Text Search geocode error:', JSON.stringify(data.error));
+    if (!res.ok || data.error) {
+      console.error('[Places] Geocode error:', JSON.stringify(data.error || data));
       return null;
     }
 
     const location = data.places?.[0]?.location;
     if (location) {
-      console.log('[Places] Text Search geocoded to:', location.latitude, location.longitude);
+      console.log('[Places] Geocoded ZIP to:', location.latitude, location.longitude);
       return { lat: location.latitude, lng: location.longitude };
     }
 
-    console.error('[Places] Text Search geocode returned no results');
+    console.error('[Places] Geocode returned no results for ZIP:', zip, '| response:', JSON.stringify(data));
     return null;
   } catch (err) {
-    console.error('[Places] Text Search geocode fetch error:', err);
+    console.error('[Places] Geocode fetch error:', err);
     return null;
   }
 }
