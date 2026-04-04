@@ -54,7 +54,7 @@ function buildEmailHtml(name: string, tool: typeof TOOLS[ToolId]): string {
     <p style="font-size: 16px; line-height: 1.6;">
       Thanks for using <strong>${tool.name}</strong> on ${PLATFORM.name}. Your personalized results are ready &mdash;
       you can revisit them anytime by heading back to
-      <a href="${PLATFORM.url}${tool.route}" style="color: #5C7A5A;">${PLATFORM.name}</a>.
+      <a href="https://famly-five.vercel.app${tool.route}" style="color: #5C7A5A;">${PLATFORM.name}</a>.
     </p>
     <p style="font-size: 16px; line-height: 1.6;">
       We built ${PLATFORM.name} because navigating family systems &mdash; childcare, health insurance, screen time &mdash;
