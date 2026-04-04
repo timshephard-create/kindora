@@ -8,16 +8,75 @@ interface GeocodeResult {
 }
 
 async function geocodeZip(zip: string): Promise<GeocodeResult | null> {
-  try {
-    const res = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${zip}&key=${GOOGLE_API_KEY}`,
-    );
-    const data = await res.json();
-    if (data.results?.[0]?.geometry?.location) {
-      return data.results[0].geometry.location;
-    }
+  if (!GOOGLE_API_KEY) {
+    console.error('[Places] No GOOGLE_PLACES_API_KEY set');
     return null;
-  } catch {
+  }
+
+  try {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(zip)}&key=${GOOGLE_API_KEY}`;
+    console.log('[Places] Geocoding ZIP:', zip);
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.status !== 'OK') {
+      console.error('[Places] Geocoding failed:', data.status, data.error_message || '');
+      // Fallback: use the Geocoding via Places Text Search to get coords
+      return geocodeZipViaPlaces(zip);
+    }
+
+    const location = data.results?.[0]?.geometry?.location;
+    if (location) {
+      console.log('[Places] Geocoded ZIP to:', location.lat, location.lng);
+      return location;
+    }
+
+    console.error('[Places] Geocoding returned no results for ZIP:', zip);
+    return null;
+  } catch (err) {
+    console.error('[Places] Geocoding fetch error:', err);
+    return geocodeZipViaPlaces(zip);
+  }
+}
+
+// Fallback geocoding using Places API Text Search (in case Geocoding API isn't enabled)
+async function geocodeZipViaPlaces(zip: string): Promise<GeocodeResult | null> {
+  try {
+    console.log('[Places] Trying Text Search fallback for geocoding ZIP:', zip);
+    const res = await fetch(
+      'https://places.googleapis.com/v1/places:searchText',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': GOOGLE_API_KEY,
+          'X-Goog-FieldMask': 'places.location',
+        },
+        body: JSON.stringify({
+          textQuery: `${zip}, USA`,
+          maxResultCount: 1,
+        }),
+      },
+    );
+
+    const data = await res.json();
+    console.log('[Places] Text Search geocode response status:', res.status);
+
+    if (data.error) {
+      console.error('[Places] Text Search geocode error:', JSON.stringify(data.error));
+      return null;
+    }
+
+    const location = data.places?.[0]?.location;
+    if (location) {
+      console.log('[Places] Text Search geocoded to:', location.latitude, location.longitude);
+      return { lat: location.latitude, lng: location.longitude };
+    }
+
+    console.error('[Places] Text Search geocode returned no results');
+    return null;
+  } catch (err) {
+    console.error('[Places] Text Search geocode fetch error:', err);
     return null;
   }
 }
@@ -38,13 +97,31 @@ export async function searchPlaces(
   types: string[],
   radius: number = 16000,
 ): Promise<PlaceResult[]> {
+  console.log('[Places] searchPlaces called with zip:', zip, 'types:', types, 'radius:', radius);
+
   const coords = await geocodeZip(zip);
-  if (!coords) return [];
+  if (!coords) {
+    console.error('[Places] Could not geocode ZIP — returning empty results');
+    return [];
+  }
 
   const allResults: PlaceResult[] = [];
 
   for (const type of types) {
     try {
+      const requestBody = {
+        includedTypes: [type],
+        locationRestriction: {
+          circle: {
+            center: { latitude: coords.lat, longitude: coords.lng },
+            radius,
+          },
+        },
+        maxResultCount: 5,
+      };
+
+      console.log('[Places] Searching for type:', type, 'at', coords.lat, coords.lng);
+
       const res = await fetch(
         'https://places.googleapis.com/v1/places:searchNearby',
         {
@@ -55,21 +132,23 @@ export async function searchPlaces(
             'X-Goog-FieldMask':
               'places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.rating,places.userRatingCount,places.regularOpeningHours,places.location,places.id',
           },
-          body: JSON.stringify({
-            includedTypes: [type],
-            locationRestriction: {
-              circle: {
-                center: { latitude: coords.lat, longitude: coords.lng },
-                radius,
-              },
-            },
-            maxResultCount: 5,
-          }),
+          body: JSON.stringify(requestBody),
         },
       );
 
       const data = await res.json();
+
+      if (!res.ok || data.error) {
+        console.error(
+          '[Places] Nearby Search error for type', type, ':',
+          'status:', res.status,
+          'response:', JSON.stringify(data),
+        );
+        continue;
+      }
+
       const places: PlacesApiResult[] = data.places || [];
+      console.log('[Places] Found', places.length, 'results for type:', type);
 
       for (const place of places) {
         const placeId = place.id || '';
@@ -79,7 +158,6 @@ export async function searchPlaces(
           ? `https://www.google.com/maps/place/?q=place_id:${placeId}`
           : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.displayName?.text || '')}`;
 
-        // Calculate rough distance
         let distance: string | null = null;
         if (lat && lng) {
           const d = haversine(coords.lat, coords.lng, lat, lng);
@@ -98,10 +176,12 @@ export async function searchPlaces(
           mapsUrl,
         });
       }
-    } catch {
-      // Continue with next type if one fails
+    } catch (err) {
+      console.error('[Places] Fetch error for type', type, ':', err);
     }
   }
+
+  console.log('[Places] Total results:', allResults.length);
 
   // Sort by rating (highest first), nulls last
   allResults.sort((a, b) => {
