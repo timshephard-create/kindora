@@ -3,21 +3,76 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --cream: #FAF6F0;
+  --white: #FFFDF9;
+  --charcoal: #2C2C2C;
+  --mid: #6B6B6B;
+  --border: #E2DAD0;
+  --sage: #5C7A5A;
+  --sage-light: #8DAB8A;
+  --sage-pale: #EBF2EA;
+  --sky: #2D6280;
+  --sky-light: #6DA4C0;
+  --sky-pale: #E4F0F6;
+  --gold: #C9A84C;
+  --gold-dark: #9A7B2E;
+  --gold-pale: #F8F1DC;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), 'DM Sans', sans-serif;
+  background-color: var(--cream);
+  color: var(--charcoal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), 'Playfair Display', serif;
+}
+
+/* Slider thumb styling */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--sage);
+  cursor: pointer;
+  border: 3px solid var(--white);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--sage);
+  cursor: pointer;
+  border: 3px solid var(--white);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
 }
 
 @layer utilities {

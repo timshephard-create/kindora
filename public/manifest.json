@@ -1,0 +1,24 @@
+{
+  "name": "Famly",
+  "short_name": "Famly",
+  "description": "The systems are broken. We help you navigate them.",
+  "theme_color": "#2C2C2C",
+  "background_color": "#FAF6F0",
+  "display": "standalone",
+  "start_url": "/",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

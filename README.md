@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Famly
 
-## Getting Started
+A family navigation platform with three tools to help families find care, understand health options, and make smart screen time choices.
 
-First, run the development server:
+## Tools
+
+- **Sprout** (`/sprout`) — Childcare navigation: find providers, discover savings programs
+- **HealthGuide** (`/health-guide`) — Health insurance recommendations based on your family profile
+- **BrightWatch** (`/bright-watch`) — Age-appropriate media recommendations for young children
+
+## Tech Stack
+
+- Next.js 14 (App Router), TypeScript, Tailwind CSS
+- Google Places API (server-side), Anthropic Claude API (server-side)
+- Brevo (transactional email), Airtable (CRM/leads)
+- PWA-ready, Capacitor-compatible
+
+## Setup
 
 ```bash
+npm install
+cp .env.example .env.local
+# Fill in your API keys in .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Description |
+|---|---|
+| `GOOGLE_PLACES_API_KEY` | Google Places API key (Nearby Search + Geocoding) |
+| `ANTHROPIC_API_KEY` | Anthropic API key (Claude Sonnet) |
+| `AIRTABLE_API_KEY` | Airtable personal access token |
+| `AIRTABLE_BASE_ID` | Airtable base ID |
+| `AIRTABLE_TABLE_NAME` | Airtable table name (default: `leads`) |
+| `BREVO_API_KEY` | Brevo SMTP API key |
+| `BREVO_FROM_EMAIL` | Sender email address |
+| `BREVO_FROM_NAME` | Sender display name |
 
-## Learn More
+All API keys are server-side only. None are exposed to the client bundle.
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy to Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push to GitHub
+2. Import into Vercel
+3. Add environment variables in Vercel dashboard
+4. Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Capacitor (Android)
 
-## Deploy on Vercel
+```bash
+# Build static export
+NEXT_EXPORT=true npm run build
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Sync with Capacitor
+npx cap sync android
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Open in Android Studio
+npx cap open android
+```
+
+## Rename / Rebrand
+
+All platform and tool names are config-driven. Edit `config/platform.ts` to rename everything:
+
+- `PLATFORM.name` — changes the platform name everywhere
+- `PLATFORM.tagline` — changes the hero tagline
+- `TOOLS.childcare.name` — changes "Sprout" to whatever you want
+- etc.
+
+No other files need to be modified. Every page title, nav label, email subject, and meta tag pulls from this single config file.
+
+## Project Structure
+
+```
+config/platform.ts    — Single source of truth for all names/colors/metadata
+app/
+  page.tsx            — Hub (tool selection)
+  sprout/             — Childcare tool
+  health-guide/       — Health insurance tool
+  bright-watch/       — Media quality tool
+  api/                — Server-side API routes
+components/           — Shared UI components
+lib/                  — Server-side logic (places, savings, healthguide, airtable, email)
+types/                — Shared TypeScript types
+```
