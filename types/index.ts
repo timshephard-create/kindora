@@ -95,12 +95,32 @@ export interface NourishShoppingItem {
   category: 'Produce' | 'Protein' | 'Dairy' | 'Pantry' | 'Frozen';
 }
 
+export interface NourishStoreStrategy {
+  category: string;
+  bestStore: string;
+  reason: string;
+  estimatedSavings: string;
+}
+
 export interface NourishResponse {
   weeklyPlan: NourishDay[];
   shoppingList: NourishShoppingItem[];
   weeklyTotal: string;
   savingsTips: string[];
   insight: string;
+  storeStrategy?: NourishStoreStrategy[];
+  splitShoppingPlan?: string;
+}
+
+export interface NearbyStore {
+  chain: string;
+  name: string;
+  address: string;
+  distance: string;
+  phone: string | null;
+  hours: string | null;
+  mapsUrl: string;
+  placeId: string;
 }
 
 // --- Lead / Email ---

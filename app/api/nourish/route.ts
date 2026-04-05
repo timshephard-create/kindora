@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { nourishInputSchema } from '@/lib/validations';
 import type { NourishResponse } from '@/types';
+import { z } from 'zod';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
+});
+
+const extendedSchema = nourishInputSchema.extend({
+  nearbyStores: z.array(z.string()).optional(),
 });
 
 function buildFallback(): NourishResponse {
@@ -41,18 +46,26 @@ function buildFallback(): NourishResponse {
     ],
     weeklyTotal: '$148.50',
     savingsTips: [
-      'Buy chicken thighs instead of breasts \u2014 they\u2019re 30\u201340% cheaper and more flavorful.',
-      'Stock up on rice, beans, and pasta when they\u2019re on sale. They last months and form the base of dozens of meals.',
-      'Plan one \u201cleftover night\u201d per week to cut waste. Sunday\u2019s chili becomes Monday\u2019s lunch.',
+      'Buy chicken thighs instead of breasts \u2014 they\'re 30\u201340% cheaper and more flavorful.',
+      'Stock up on rice, beans, and pasta when they\'re on sale. They last months and form the base of dozens of meals.',
+      'Plan one "leftover night" per week to cut waste. Sunday\'s chili becomes Monday\'s lunch.',
     ],
     insight: 'For a family of 4 on a $150/week budget, you have plenty of room for balanced, tasty meals. The key is building around affordable proteins like chicken thighs and eggs, and leaning on pantry staples like rice and beans to stretch every dollar.',
+    storeStrategy: [
+      { category: 'Produce', bestStore: 'Aldi', reason: 'Typically 15\u201320% cheaper than major chains', estimatedSavings: '$3\u20135' },
+      { category: 'Protein', bestStore: 'Walmart', reason: 'Consistently low prices on chicken and ground beef', estimatedSavings: '$2\u20134' },
+      { category: 'Dairy', bestStore: 'Aldi', reason: 'Store-brand dairy at significant discount', estimatedSavings: '$2\u20133' },
+      { category: 'Pantry', bestStore: 'Walmart', reason: 'Great Value brand staples are hard to beat', estimatedSavings: '$3\u20135' },
+      { category: 'Frozen', bestStore: 'Aldi', reason: 'Frozen vegetables often under $1.50/bag', estimatedSavings: '$1\u20132' },
+    ],
+    splitShoppingPlan: 'Start at Aldi for produce, dairy, and frozen items \u2014 you\'ll save $8\u201310 compared to a single-store trip. Then hit Walmart for proteins and pantry staples where Great Value prices are hard to beat. Skip Whole Foods and Trader Joe\'s for this budget \u2014 they\'re great for specialty items but not for stretching $150 across a full week.',
   };
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const parsed = nourishInputSchema.safeParse(body);
+    const parsed = extendedSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
@@ -61,7 +74,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { householdSize, budget, dietary, cookingTime, zip } = parsed.data;
+    const { householdSize, budget, dietary, cookingTime, zip, nearbyStores } = parsed.data;
 
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json({ data: buildFallback() });
@@ -78,6 +91,14 @@ export async function POST(request: NextRequest) {
       batch: 'prefers batch cooking / meal prep once per week',
     };
 
+    const storeList = nearbyStores && nearbyStores.length > 0
+      ? nearbyStores.join(', ')
+      : 'Walmart, Amazon Fresh';
+
+    const storeInstruction = nearbyStores && nearbyStores.length > 0
+      ? `Nearby stores for this family: ${storeList}. Only recommend from these stores in storeStrategy and splitShoppingPlan.`
+      : `No nearby stores were found (likely a rural area). Default to recommending Walmart as the primary store and Amazon Fresh for non-perishables.`;
+
     const prompt = `You are a family meal planning expert and budget grocery optimizer. Create a realistic 7-day meal plan for this family.
 
 Profile:
@@ -86,6 +107,8 @@ Profile:
 - Dietary restrictions: ${dietaryStr}
 - Cooking time: ${cookingLabels[cookingTime] || cookingTime}
 - Location ZIP: ${zip}
+
+${storeInstruction}
 
 Return ONLY valid JSON (no markdown, no code fences) in this exact structure:
 {
@@ -102,7 +125,11 @@ Return ONLY valid JSON (no markdown, no code fences) in this exact structure:
   ],
   "weeklyTotal": "$X.XX",
   "savingsTips": ["tip1", "tip2", "tip3"],
-  "insight": "2-3 sentence personalized summary about this family's meal plan and budget"
+  "insight": "2-3 sentence personalized summary about this family's meal plan and budget",
+  "storeStrategy": [
+    { "category": "Produce", "bestStore": "store name", "reason": "brief reason", "estimatedSavings": "$X-Y" }
+  ],
+  "splitShoppingPlan": "2-3 sentence specific tip on how to split this shopping list across their actual nearby stores for maximum savings. Name the specific stores. Be concrete and actionable."
 }
 
 Requirements:
@@ -114,11 +141,13 @@ Requirements:
 - Prep times must respect their cooking time preference
 - Include 15-20 shopping list items covering all meals
 - Meals should be family-friendly and practical, not gourmet
-- 3 specific, actionable savings tips`;
+- 3 specific, actionable savings tips
+- storeStrategy: one entry per shopping list category, only recommend from nearby stores
+- splitShoppingPlan: specific, actionable, names the actual nearby stores`;
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 3000,
+      max_tokens: 3500,
       messages: [{ role: 'user', content: prompt }],
     });
 

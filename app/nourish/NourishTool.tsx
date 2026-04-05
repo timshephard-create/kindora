@@ -4,11 +4,16 @@ import { useState, useCallback } from 'react';
 import { TOOLS } from '@/config/platform';
 import QuizShell from '@/components/QuizShell';
 import EmailCapture from '@/components/EmailCapture';
-import LoadingState from '@/components/LoadingState';
 import ErrorState from '@/components/ErrorState';
 import AIInsightBlock from '@/components/AIInsightBlock';
 import CrossToolFooter from '@/components/CrossToolFooter';
-import type { NourishResponse, NourishDay, NourishShoppingItem } from '@/types';
+import type {
+  NourishResponse,
+  NourishDay,
+  NourishShoppingItem,
+  NourishStoreStrategy,
+  NearbyStore,
+} from '@/types';
 import type { QuizQuestion } from '@/types';
 
 const tool = TOOLS.meal;
@@ -68,7 +73,7 @@ const questions: QuizQuestion[] = [
     id: 'zip',
     type: 'text',
     label: 'What\u2019s your ZIP code?',
-    helpText: 'We\u2019ll suggest stores near you.',
+    helpText: 'We\u2019ll find stores near you and build your plan.',
     placeholder: 'e.g. 78701',
     validate: (v: string) => /^\d{5}$/.test(v) ? null : 'Please enter a 5-digit ZIP code',
   },
@@ -81,6 +86,28 @@ const CATEGORIES: Array<{ key: string; label: string; icon: string }> = [
   { key: 'Pantry', label: 'Pantry', icon: '\uD83C\uDF3E' },
   { key: 'Frozen', label: 'Frozen', icon: '\u2744\uFE0F' },
 ];
+
+const STORE_SEARCH_URLS: Record<string, (q: string) => string> = {
+  Walmart: (q) => `https://www.walmart.com/search?q=${q}`,
+  HEB: (q) => `https://www.heb.com/search-results-page/query=${q}`,
+  Aldi: (q) => `https://www.aldi.us/en/search/?search=${q}`,
+  Kroger: (q) => `https://www.kroger.com/search?query=${q}`,
+  Target: (q) => `https://www.target.com/s?searchTerm=${q}`,
+  Costco: (q) => `https://www.costco.com/CatalogSearch?keyword=${q}`,
+  'Amazon Fresh': (q) => `https://www.amazon.com/s?i=amazonfresh&k=${q}`,
+  "Sam's Club": (q) => `https://www.samsclub.com/s/${q}`,
+  "Trader Joe's": (q) => `https://www.traderjoes.com/home/search?q=${q}`,
+  'Whole Foods': (q) => `https://www.wholefoodsmarket.com/search?text=${q}`,
+};
+
+function getShopUrl(chain: string, items: NourishShoppingItem[]): string {
+  const topItems = items.slice(0, 5).map((i) => i.item.split('(')[0].trim()).join(' ');
+  const encoded = encodeURIComponent(topItems);
+  const builder = STORE_SEARCH_URLS[chain];
+  return builder ? builder(encoded) : `https://www.google.com/search?q=${encoded}+${encodeURIComponent(chain)}`;
+}
+
+// --- Sub-components ---
 
 function MealDayCard({ day, expanded, onToggle }: { day: NourishDay; expanded: boolean; onToggle: () => void }) {
   return (
@@ -99,9 +126,7 @@ function MealDayCard({ day, expanded, onToggle }: { day: NourishDay; expanded: b
           {(['breakfast', 'lunch', 'dinner'] as const).map((meal) => (
             <div key={meal} className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-terra">
-                  {meal}
-                </p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-terra">{meal}</p>
                 <p className="text-sm font-medium text-charcoal">{day[meal].name}</p>
               </div>
               <div className="text-right">
@@ -116,23 +141,120 @@ function MealDayCard({ day, expanded, onToggle }: { day: NourishDay; expanded: b
   );
 }
 
+function StoreSkeleton() {
+  return (
+    <section className="mb-8">
+      <div className="h-7 w-48 rounded bg-border/50 mb-4 animate-pulse" />
+      <div className="rounded-2xl border border-terra-light/30 bg-terra-pale p-6 mb-4 animate-pulse">
+        <div className="h-5 w-56 rounded bg-border/40 mb-3" />
+        <div className="h-4 w-full rounded bg-border/30 mb-2" />
+        <div className="h-4 w-3/4 rounded bg-border/30" />
+      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="rounded-xl border border-border bg-white p-5 animate-pulse">
+            <div className="h-5 w-32 rounded bg-border/50 mb-2" />
+            <div className="h-4 w-full rounded bg-border/30 mb-1" />
+            <div className="h-4 w-2/3 rounded bg-border/30" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function MealPlanSkeleton() {
+  return (
+    <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12">
+      <div className="animate-pulse space-y-6">
+        <div className="h-8 w-3/4 rounded-lg bg-border/50" />
+        <div className="h-4 w-1/2 rounded-lg bg-border/30" />
+        <div className="rounded-2xl bg-border/30 p-6 h-28" />
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="rounded-xl border border-border bg-white p-5">
+            <div className="h-6 w-1/3 rounded bg-border/50 mb-2" />
+            <div className="h-4 w-full rounded bg-border/30" />
+          </div>
+        ))}
+      </div>
+      <p className="mt-8 text-center text-sm text-mid">Building your personalized meal plan...</p>
+    </div>
+  );
+}
+
+function StoreCard({ store, shopUrl }: { store: NearbyStore; shopUrl: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-white p-5">
+      <div className="mb-1 flex items-start justify-between">
+        <h4 className="font-heading text-base font-bold text-charcoal">{store.chain}</h4>
+        <span className="text-xs text-mid whitespace-nowrap">{store.distance}</span>
+      </div>
+      {store.name !== store.chain && (
+        <p className="text-xs text-mid mb-1">{store.name}</p>
+      )}
+      <p className="text-sm text-mid mb-1">{store.address}</p>
+      {store.hours && <p className="text-xs text-mid mb-3">{store.hours}</p>}
+      <div className="flex gap-2">
+        <a
+          href={store.mapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 rounded-lg border border-border bg-cream px-3 py-2 text-center text-xs font-medium text-charcoal hover:bg-border/30"
+        >
+          Get Directions &rarr;
+        </a>
+        <a
+          href={shopUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 rounded-lg bg-terra px-3 py-2 text-center text-xs font-medium text-white hover:bg-terra-light"
+        >
+          Shop This List &rarr;
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// --- Main component ---
+
 export default function NourishTool() {
   const [phase, setPhase] = useState<'quiz' | 'loading' | 'email' | 'results'>('quiz');
   const [results, setResults] = useState<NourishResponse | null>(null);
+  const [stores, setStores] = useState<NearbyStore[] | null>(null);
+  const [storesLoading, setStoresLoading] = useState(true);
   const [emailData, setEmailData] = useState<Record<string, unknown>>({});
   const [userBudget, setUserBudget] = useState(0);
-  const [userZip, setUserZip] = useState('');
   const [expandedDay, setExpandedDay] = useState(0);
   const [error, setError] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleComplete = useCallback(async (answers: Record<string, string | string[] | number>) => {
     setPhase('loading');
     setError(false);
+    setStoresLoading(true);
+    const zip = answers.zip as string;
     setUserBudget(answers.budget as number);
-    setUserZip(answers.zip as string);
 
+    // 1. Kick off store search immediately
+    const storePromise = fetch('/api/nearby-stores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ zip }),
+    })
+      .then((r) => r.json())
+      .then((data) => (data.stores || []) as NearbyStore[])
+      .catch(() => [] as NearbyStore[]);
+
+    // 2. Wait for stores, then call nourish with store names
     try {
-      const res = await fetch('/api/nourish', {
+      const foundStores = await storePromise;
+      setStores(foundStores);
+      setStoresLoading(false);
+
+      const nearbyStoreNames = foundStores.map((s) => s.chain);
+
+      const nourishRes = await fetch('/api/nourish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -140,11 +262,12 @@ export default function NourishTool() {
           budget: answers.budget,
           dietary: answers.dietary || [],
           cookingTime: answers.cookingTime,
-          zip: answers.zip,
+          zip,
+          nearbyStores: nearbyStoreNames,
         }),
       });
 
-      const data = await res.json();
+      const data = await nourishRes.json();
       const nourishData = data.data as NourishResponse;
       setResults(nourishData);
 
@@ -161,6 +284,17 @@ export default function NourishTool() {
       setPhase('results');
     }
   }, []);
+
+  const handleCopyList = useCallback(() => {
+    if (!results) return;
+    const lines = results.shoppingList.map(
+      (item) => `${item.item} (${item.quantity}) - ${item.estimatedCost}`,
+    );
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [results]);
 
   if (phase === 'quiz') {
     return (
@@ -182,7 +316,7 @@ export default function NourishTool() {
   if (phase === 'loading') {
     return (
       <div className="min-h-screen bg-cream">
-        <LoadingState message="Building your personalized meal plan..." />
+        <MealPlanSkeleton />
       </div>
     );
   }
@@ -235,7 +369,85 @@ export default function NourishTool() {
           </p>
         </div>
 
-        {/* Meal Plan */}
+        {/* ===== WHERE TO SHOP ===== */}
+        {storesLoading ? (
+          <StoreSkeleton />
+        ) : (
+          <section className="mb-8">
+            <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">
+              Where to Shop
+            </h2>
+
+            {/* Split Shopping Plan */}
+            {results.splitShoppingPlan && (
+              <div className="mb-4 rounded-2xl border border-terra-light/30 bg-terra-pale p-6">
+                <h3 className="mb-2 flex items-center gap-2 font-heading text-base font-bold text-terra">
+                  <span>&#128161;</span> Your Shopping Strategy
+                </h3>
+                <p className="text-sm leading-relaxed text-charcoal">
+                  {results.splitShoppingPlan}
+                </p>
+              </div>
+            )}
+
+            {/* Per-Category Store Strategy */}
+            {results.storeStrategy && results.storeStrategy.length > 0 && (
+              <div className="mb-4 rounded-xl border border-border bg-white overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-cream">
+                        <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-mid">Category</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-mid">Best Store</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-mid hidden sm:table-cell">Why</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-mid">Savings</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {results.storeStrategy.map((s: NourishStoreStrategy, i: number) => (
+                        <tr key={i} className="border-b border-border last:border-0">
+                          <td className="px-4 py-3 font-medium text-charcoal">{s.category}</td>
+                          <td className="px-4 py-3 text-terra font-medium">{s.bestStore}</td>
+                          <td className="px-4 py-3 text-mid hidden sm:table-cell">{s.reason}</td>
+                          <td className="px-4 py-3 text-right font-medium text-sage">{s.estimatedSavings}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="px-4 py-2 text-xs text-mid bg-cream/50">
+                  Based on typical pricing patterns — actual prices vary by location and week.
+                </p>
+              </div>
+            )}
+
+            {/* Nearby Store Cards */}
+            {stores && stores.length > 0 && (
+              <>
+                <h3 className="mb-3 text-sm font-semibold text-charcoal">Stores near you</h3>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {stores.map((store) => (
+                    <StoreCard
+                      key={store.placeId || store.chain}
+                      store={store}
+                      shopUrl={getShopUrl(store.chain, results.shoppingList)}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {stores && stores.length === 0 && (
+              <div className="rounded-xl border border-border bg-white p-5">
+                <p className="text-sm text-mid">
+                  <strong>No major grocery chains found within 12 miles.</strong> For rural areas, we recommend Walmart for most items and Amazon Fresh for pantry staples and non-perishables.
+                </p>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* ===== 7-DAY PLAN ===== */}
         <section className="mb-8">
           <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">
             7-Day Plan
@@ -252,11 +464,27 @@ export default function NourishTool() {
           </div>
         </section>
 
-        {/* Shopping List */}
+        {/* ===== SHOPPING LIST ===== */}
         <section className="mb-8">
-          <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">
-            Shopping List
-          </h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-heading text-xl font-bold text-charcoal">
+              Shopping List
+            </h2>
+            <div className="flex gap-2">
+              <button
+                onClick={() => window.print()}
+                className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-mid hover:bg-cream"
+              >
+                &#128424; Print List
+              </button>
+              <button
+                onClick={handleCopyList}
+                className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-mid hover:bg-cream"
+              >
+                {copied ? '&#10003; Copied!' : '&#128203; Copy List'}
+              </button>
+            </div>
+          </div>
           <div className="space-y-4">
             {CATEGORIES.map(({ key, label, icon }) => {
               const items = results.shoppingList.filter(
@@ -301,18 +529,11 @@ export default function NourishTool() {
           </section>
         )}
 
-        {/* Store Suggestion */}
-        <div className="mb-8 rounded-xl border border-border bg-white p-5">
-          <p className="text-sm text-charcoal">
-            <strong>For ZIP {userZip}</strong>, consider checking <strong>Walmart</strong>, <strong>Aldi</strong>, and <strong>HEB</strong> for the best prices on your list. Buying store-brand where available can save you another 15–25%.
-          </p>
-        </div>
-
         {/* Premium hook */}
         <div className="mt-8 rounded-2xl border-2 border-dashed border-border bg-white/50 p-6 text-center opacity-60">
           <span className="text-2xl">&#128274;</span>
           <p className="mt-2 font-heading text-lg font-bold text-charcoal">
-            Get your full {tool.premiumLabel}
+            Get your full meal library
           </p>
           <p className="mt-1 text-sm text-mid">
             Unlock with {tool.name} Premium
