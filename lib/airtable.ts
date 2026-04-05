@@ -11,14 +11,18 @@ interface LeadRecord {
   profileSummary?: string;
 }
 
-async function findByEmail(email: string): Promise<boolean> {
-  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) return false;
+interface ExistingRecord {
+  id: string;
+  tool: string;
+}
+
+async function findByEmail(email: string): Promise<ExistingRecord | null> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) return null;
 
   try {
     const filter = encodeURIComponent(`{Email} = '${email}'`);
     const url = `${BASE_URL}?filterByFormula=${filter}&maxRecords=1`;
     console.log('[Airtable] Dedup check for email:', email);
-    console.log('[Airtable] GET', url.replace(AIRTABLE_API_KEY, 'REDACTED'));
 
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` },
@@ -30,13 +34,16 @@ async function findByEmail(email: string): Promise<boolean> {
 
     if (!res.ok) {
       console.error('[Airtable] Dedup check failed:', res.status, JSON.stringify(data));
-      return false;
+      return null;
     }
 
-    return (data.records?.length || 0) > 0;
+    const record = data.records?.[0];
+    if (!record) return null;
+
+    return { id: record.id, tool: record.fields?.Tool || '' };
   } catch (err) {
     console.error('[Airtable] Dedup fetch error:', err);
-    return false;
+    return null;
   }
 }
 
@@ -53,10 +60,49 @@ export async function createLead(lead: LeadRecord): Promise<boolean> {
   }
 
   try {
-    // Deduplicate
-    const exists = await findByEmail(lead.email);
-    if (exists) {
-      console.log('[Airtable] Lead already exists, skipping create');
+    // Check for existing record
+    const existing = await findByEmail(lead.email);
+    if (existing) {
+      // Append new tool if not already tracked
+      const existingTools = existing.tool.split(',').map((t) => t.trim()).filter(Boolean);
+      if (!existingTools.includes(lead.tool)) {
+        const updatedTool = [...existingTools, lead.tool].join(', ');
+        console.log('[Airtable] Updating existing record', existing.id, '— Tool:', existingTools.join(', '), '->', updatedTool);
+
+        const updateRes = await fetch(`${BASE_URL}/${existing.id}`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fields: {
+              Tool: updatedTool,
+              CreatedAt: new Date().toISOString(),
+            },
+          }),
+        });
+        const updateData = await updateRes.json();
+        console.log('[Airtable] Update response status:', updateRes.status);
+        console.log('[Airtable] Update response body:', JSON.stringify(updateData));
+
+        if (!updateRes.ok) {
+          console.error('[Airtable] Update failed:', updateRes.status, JSON.stringify(updateData));
+          return false;
+        }
+
+        console.log('[Airtable] Existing lead updated with new tool');
+      } else {
+        console.log('[Airtable] Lead already has tool', lead.tool, '— updating timestamp only');
+        await fetch(`${BASE_URL}/${existing.id}`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fields: { CreatedAt: new Date().toISOString() } }),
+        });
+      }
       return true;
     }
 
