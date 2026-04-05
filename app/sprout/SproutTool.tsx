@@ -221,7 +221,14 @@ export default function SproutTool() {
   if (phase === 'loading') {
     return (
       <div className="min-h-screen bg-cream">
-        <LoadingState message="Finding childcare options near you..." />
+        <LoadingState
+          color="sage"
+          messages={[
+            'Finding providers near you...',
+            'Calculating your savings...',
+            'Building your personalized plan...',
+          ]}
+        />
       </div>
     );
   }

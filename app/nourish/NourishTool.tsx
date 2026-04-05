@@ -5,6 +5,7 @@ import { TOOLS } from '@/config/platform';
 import QuizShell from '@/components/QuizShell';
 import EmailCapture from '@/components/EmailCapture';
 import ErrorState from '@/components/ErrorState';
+import LoadingState from '@/components/LoadingState';
 import AIInsightBlock from '@/components/AIInsightBlock';
 import CrossToolFooter from '@/components/CrossToolFooter';
 import type {
@@ -100,9 +101,14 @@ const STORE_SEARCH_URLS: Record<string, (q: string) => string> = {
   'Whole Foods': (q) => `https://www.wholefoodsmarket.com/search?text=${q}`,
 };
 
+function getFirstIngredient(items: NourishShoppingItem[]): string {
+  if (items.length === 0) return 'groceries';
+  return items[0].item.split('(')[0].trim();
+}
+
 function getShopUrl(chain: string, items: NourishShoppingItem[]): string {
-  const topItems = items.slice(0, 5).map((i) => i.item.split('(')[0].trim()).join(' ');
-  const encoded = encodeURIComponent(topItems);
+  const firstItem = getFirstIngredient(items);
+  const encoded = encodeURIComponent(firstItem);
   const builder = STORE_SEARCH_URLS[chain];
   return builder ? builder(encoded) : `https://www.google.com/search?q=${encoded}+${encodeURIComponent(chain)}`;
 }
@@ -183,26 +189,14 @@ function StoreSkeleton() {
   );
 }
 
-function MealPlanSkeleton() {
-  return (
-    <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12">
-      <div className="animate-pulse space-y-6">
-        <div className="h-8 w-3/4 rounded-lg bg-border/50" />
-        <div className="h-4 w-1/2 rounded-lg bg-border/30" />
-        <div className="rounded-2xl bg-border/30 p-6 h-28" />
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="rounded-xl border border-border bg-white p-5">
-            <div className="h-6 w-1/3 rounded bg-border/50 mb-2" />
-            <div className="h-4 w-full rounded bg-border/30" />
-          </div>
-        ))}
-      </div>
-      <p className="mt-8 text-center text-sm text-mid">Building your personalized meal plan...</p>
-    </div>
-  );
-}
+const NOURISH_LOADING_MESSAGES = [
+  'Planning your week...',
+  'Building your shopping list...',
+  'Finding stores near you...',
+  'Almost ready...',
+];
 
-function StoreCard({ store, shopUrl }: { store: NearbyStore; shopUrl: string }) {
+function StoreCard({ store, shopUrl, searchItem }: { store: NearbyStore; shopUrl: string; searchItem: string }) {
   return (
     <div className="rounded-xl border border-border bg-white p-5">
       <div className="mb-1 flex items-start justify-between">
@@ -228,10 +222,14 @@ function StoreCard({ store, shopUrl }: { store: NearbyStore; shopUrl: string }) 
           target="_blank"
           rel="noopener noreferrer"
           className="flex-1 rounded-lg bg-terra px-3 py-2 text-center text-xs font-medium text-white hover:bg-terra-light"
+          title={`Searches for "${searchItem}" at ${store.chain}`}
         >
           Shop This List &rarr;
         </a>
       </div>
+      <p className="mt-1.5 text-center text-[10px] text-mid">
+        Searches for &ldquo;{searchItem}&rdquo; at {store.chain}
+      </p>
     </div>
   );
 }
@@ -336,7 +334,7 @@ export default function NourishTool() {
   if (phase === 'loading') {
     return (
       <div className="min-h-screen bg-cream">
-        <MealPlanSkeleton />
+        <LoadingState color="terra" messages={NOURISH_LOADING_MESSAGES} />
       </div>
     );
   }
@@ -451,6 +449,7 @@ export default function NourishTool() {
                       key={store.placeId || store.chain}
                       store={store}
                       shopUrl={getShopUrl(store.chain, results.shoppingList)}
+                      searchItem={getFirstIngredient(results.shoppingList)}
                     />
                   ))}
                 </div>
@@ -495,13 +494,13 @@ export default function NourishTool() {
                 onClick={() => window.print()}
                 className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-mid hover:bg-cream"
               >
-                &#128424; Print List
+                Print List
               </button>
               <button
                 onClick={handleCopyList}
                 className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-mid hover:bg-cream"
               >
-                {copied ? '&#10003; Copied!' : '&#128203; Copy List'}
+                {copied ? 'Copied!' : 'Copy List'}
               </button>
             </div>
           </div>

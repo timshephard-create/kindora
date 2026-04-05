@@ -111,7 +111,14 @@ export default function BrightWatchTool() {
   if (phase === 'loading') {
     return (
       <div className="min-h-screen bg-cream">
-        <LoadingState message="Analyzing content for your child..." />
+        <LoadingState
+          color="gold"
+          messages={[
+            'Reviewing content for your child\'s age...',
+            'Scoring developmental impact...',
+            'Building your recommendations...',
+          ]}
+        />
       </div>
     );
   }

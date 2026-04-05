@@ -311,7 +311,14 @@ export default function HealthGuideTool() {
   if (phase === 'loading') {
     return (
       <div className="min-h-screen bg-cream">
-        <LoadingState message="Building your plan recommendations..." />
+        <LoadingState
+          color="sky"
+          messages={[
+            'Analyzing your coverage options...',
+            'Looking up plans in your area...',
+            'Preparing your recommendations...',
+          ]}
+        />
       </div>
     );
   }
