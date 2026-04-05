@@ -70,6 +70,59 @@ interface PlacesApiResult {
   id?: string;
 }
 
+const CHILDCARE_NAME_KEYWORDS = [
+  'child', 'early', 'preschool', 'academy', 'learning', 'montessori',
+  'daycare', 'day care', 'care', 'kids', 'little', 'tot', 'kiddie',
+  'nursery', 'kinder', 'bright', 'sprout', 'tiny', 'infant', 'toddler',
+];
+
+const EXCLUDE_NAME_KEYWORDS = [
+  'high school', 'middle school', 'junior high', 'university', 'college',
+  'crossfit',
+];
+
+function isChildcareName(name: string): boolean {
+  const lower = name.toLowerCase();
+  return CHILDCARE_NAME_KEYWORDS.some((kw) => lower.includes(kw));
+}
+
+function isExcludedName(name: string): boolean {
+  const lower = name.toLowerCase();
+  // Always exclude these
+  if (EXCLUDE_NAME_KEYWORDS.some((kw) => lower.includes(kw))) {
+    // Exception: YMCA with childcare keywords
+    if (lower.includes('ymca') || lower.includes('y.m.c.a')) {
+      return !(lower.includes('child') || lower.includes('childcare') || lower.includes('daycare') || lower.includes('early learning'));
+    }
+    return true;
+  }
+  // YMCA without childcare keywords
+  if ((lower.includes('ymca') || lower.includes('y.m.c.a')) &&
+      !lower.includes('child watch') && !lower.includes('childcare') &&
+      !lower.includes('early learning') && !lower.includes('daycare')) {
+    return true;
+  }
+  return false;
+}
+
+function filterChildcareResults(results: PlaceResult[], relaxNameFilter = false): PlaceResult[] {
+  return results.filter((place) => {
+    const name = place.name;
+
+    // Always exclude by name
+    if (isExcludedName(name)) return false;
+
+    // If name clearly matches childcare, keep it
+    if (isChildcareName(name)) return true;
+
+    // In strict mode, name must match keywords
+    if (!relaxNameFilter) return false;
+
+    // In relaxed mode, keep anything not explicitly excluded
+    return true;
+  });
+}
+
 export async function searchPlaces(
   zip: string,
   types: string[],
@@ -159,17 +212,30 @@ export async function searchPlaces(
     }
   }
 
-  console.log('[Places] Total results:', allResults.length);
+  console.log('[Places] Pre-filter:', allResults.length, 'results');
+
+  const filtered = filterChildcareResults(allResults);
+
+  console.log('[Places] Post-filter:', filtered.length, 'results');
+
+  // If filtering reduced too aggressively, relax name filter but keep type exclusions
+  const finalResults = filtered.length >= 3
+    ? filtered
+    : filterChildcareResults(allResults, true);
+
+  if (finalResults.length !== filtered.length) {
+    console.log('[Places] Relaxed filter applied:', finalResults.length, 'results');
+  }
 
   // Sort by rating (highest first), nulls last
-  allResults.sort((a, b) => {
+  finalResults.sort((a, b) => {
     if (a.rating === null && b.rating === null) return 0;
     if (a.rating === null) return 1;
     if (b.rating === null) return -1;
     return b.rating - a.rating;
   });
 
-  return allResults;
+  return finalResults;
 }
 
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number): number {

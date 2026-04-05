@@ -106,7 +106,9 @@ Return ONLY valid JSON (no markdown, no code fences) in this exact structure:
   "avoid": "2 sentences on what to avoid for this age/context and why"
 }
 
-Give exactly 4 recommendations using real, well-known shows/apps. Use accurate platform info. Scores should reflect genuine developmental value.`;
+Give exactly 4 recommendations using real, well-known shows/apps. Use accurate platform info. Scores should reflect genuine developmental value.
+
+For each recommendation, if you have any uncertainty about whether this content is currently available on the platform you're listing, flag it by adding "(verify availability)" after the platform name. Also note if a show may have been removed or moved to a different service since your training data.`;
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',

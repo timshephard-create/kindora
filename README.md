@@ -1,12 +1,13 @@
 # Famly
 
-A family navigation platform with three tools to help families find care, understand health options, and make smart screen time choices.
+A family navigation platform with four tools to help families find care, understand health options, make smart screen time choices, and eat well on a budget.
 
 ## Tools
 
 - **Sprout** (`/sprout`) — Childcare navigation: find providers, discover savings programs
-- **HealthGuide** (`/health-guide`) — Health insurance recommendations based on your family profile
+- **HealthGuide** (`/health-guide`) — Health insurance recommendations with real CMS Marketplace plan data
 - **BrightWatch** (`/bright-watch`) — Age-appropriate media recommendations for young children
+- **Nourish** (`/nourish`) — Budget-smart meal planning with nearby store discovery
 
 ## Tech Stack
 
@@ -38,8 +39,18 @@ Open [http://localhost:3000](http://localhost:3000).
 | `BREVO_API_KEY` | Brevo SMTP API key |
 | `BREVO_FROM_EMAIL` | Sender email address |
 | `BREVO_FROM_NAME` | Sender display name |
+| `CMS_MARKETPLACE_API_KEY` | CMS Marketplace API key (optional, for real health plans) |
 
 All API keys are server-side only. None are exposed to the client bundle.
+
+### CMS Marketplace API (free, optional)
+
+HealthGuide uses the CMS Marketplace API to show real health insurance plans with real premiums. Without this key, the tool still works using deterministic recommendations.
+
+1. Go to https://developer.cms.gov/marketplace-api/key-request.html
+2. Fill out the request form (name, email, intended use: family health insurance tool)
+3. Key is emailed within 1-2 business days
+4. Add as `CMS_MARKETPLACE_API_KEY` in your `.env.local` and Vercel env vars
 
 ## Deploy to Vercel
 
@@ -81,6 +92,7 @@ app/
   sprout/             — Childcare tool
   health-guide/       — Health insurance tool
   bright-watch/       — Media quality tool
+  nourish/            — Meal planning tool
   api/                — Server-side API routes
 components/           — Shared UI components
 lib/                  — Server-side logic (places, savings, healthguide, airtable, email)

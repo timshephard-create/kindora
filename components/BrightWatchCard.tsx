@@ -78,6 +78,14 @@ export default function BrightWatchCard({
             </p>
             <p className="mt-1 text-xs leading-relaxed text-charcoal">{rec.tip}</p>
           </div>
+          <a
+            href={`https://www.commonsensemedia.org/search/${encodeURIComponent(rec.name)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block text-xs text-mid hover:text-charcoal"
+          >
+            Full age &amp; content review on Common Sense Media &rarr;
+          </a>
         </div>
       </div>
     </div>

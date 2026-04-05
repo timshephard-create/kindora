@@ -117,7 +117,7 @@ Return ONLY valid JSON (no markdown, no code fences) in this exact structure:
       "day": "Monday",
       "breakfast": { "name": "string", "prepTime": "X min", "cost": "$X.XX/serving" },
       "lunch": { "name": "string", "prepTime": "X min", "cost": "$X.XX/serving" },
-      "dinner": { "name": "string", "prepTime": "X min", "cost": "$X.XX/serving" }
+      "dinner": { "name": "string", "prepTime": "X min", "cost": "$X.XX/serving", "steps": ["Step 1: ...", "Step 2: ...", "Step 3: ..."], "tip": "One quick cooking tip" }
     }
   ],
   "shoppingList": [
@@ -142,6 +142,8 @@ Requirements:
 - Include 15-20 shopping list items covering all meals
 - Meals should be family-friendly and practical, not gourmet
 - 3 specific, actionable savings tips
+- Dinner steps: 3-5 clear, concise steps per dinner. Plain English. No ingredient amounts in steps (those are in the shopping list). Each step one sentence. Include one cooking tip per dinner.
+- Breakfast and lunch: no steps needed, keep simple
 - storeStrategy: one entry per shopping list category, only recommend from nearby stores
 - splitShoppingPlan: specific, actionable, names the actual nearby stores`;
 

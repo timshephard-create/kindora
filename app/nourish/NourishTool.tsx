@@ -124,15 +124,35 @@ function MealDayCard({ day, expanded, onToggle }: { day: NourishDay; expanded: b
       {expanded && (
         <div className="border-t border-border px-5 py-4 space-y-3">
           {(['breakfast', 'lunch', 'dinner'] as const).map((meal) => (
-            <div key={meal} className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-terra">{meal}</p>
-                <p className="text-sm font-medium text-charcoal">{day[meal].name}</p>
+            <div key={meal}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-terra">{meal}</p>
+                  <p className="text-sm font-medium text-charcoal">{day[meal].name}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-mid">{day[meal].prepTime}</p>
+                  <p className="text-xs font-medium text-charcoal">{day[meal].cost}</p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-xs text-mid">{day[meal].prepTime}</p>
-                <p className="text-xs font-medium text-charcoal">{day[meal].cost}</p>
-              </div>
+              {/* Dinner recipe steps */}
+              {meal === 'dinner' && day.dinner.steps && day.dinner.steps.length > 0 && (
+                <div className="mt-2 ml-0.5">
+                  <ol className="space-y-1">
+                    {day.dinner.steps.map((step, idx) => (
+                      <li key={idx} className="flex gap-2 text-xs leading-relaxed text-mid">
+                        <span className="flex-shrink-0 font-semibold text-terra">{idx + 1}.</span>
+                        {step.replace(/^Step \d+:\s*/i, '')}
+                      </li>
+                    ))}
+                  </ol>
+                  {day.dinner.tip && (
+                    <div className="mt-2 rounded-lg bg-terra-pale px-3 py-2">
+                      <p className="text-xs text-terra"><strong>Tip:</strong> {day.dinner.tip}</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

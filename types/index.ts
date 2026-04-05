@@ -79,6 +79,8 @@ export interface NourishMeal {
   name: string;
   prepTime: string;
   cost: string;
+  steps?: string[];
+  tip?: string;
 }
 
 export interface NourishDay {
@@ -121,6 +123,22 @@ export interface NearbyStore {
   hours: string | null;
   mapsUrl: string;
   placeId: string;
+}
+
+// --- CMS Health Plans ---
+
+export interface CMSPlanResult {
+  id: string;
+  name: string;
+  issuer: string;
+  metalLevel: string;
+  type: string;
+  monthlyPremium: number;
+  monthlyWithSubsidy: number;
+  annualDeductible: number;
+  annualMoop: number;
+  benefitsUrl: string;
+  subsidyAmount: number;
 }
 
 // --- Lead / Email ---

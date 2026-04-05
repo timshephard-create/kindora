@@ -148,6 +148,11 @@ export default function BrightWatchTool() {
           </div>
         )}
 
+        {/* Availability disclaimer */}
+        <p className="mb-4 text-xs italic text-mid">
+          Platform availability changes frequently. Tap &ldquo;Full review&rdquo; to verify current streaming availability.
+        </p>
+
         {/* Recommendation Cards */}
         <div className="space-y-4">
           {results.recommendations.map((rec, i) => (
@@ -164,6 +169,27 @@ export default function BrightWatchTool() {
             <p className="text-sm leading-relaxed text-charcoal">{results.avoid}</p>
           </section>
         )}
+
+        {/* Methodology Note */}
+        <section className="mt-8 rounded-xl border border-border bg-cream p-5">
+          <h3 className="mb-2 text-sm font-semibold text-charcoal">
+            How BrightWatch scores content
+          </h3>
+          <p className="mb-3 text-xs leading-relaxed text-mid">
+            BrightWatch ratings are based on current child development research for ages 0&ndash;5, scoring content on pacing, stimulation level, language richness, interactive design, and prosocial modeling. These criteria are different from age-appropriateness ratings.
+          </p>
+          <p className="mb-3 text-xs leading-relaxed text-mid">
+            For full content reviews including age ratings, violence, language, and commercial content, we recommend Common Sense Media.
+          </p>
+          <a
+            href="https://www.commonsensemedia.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-medium text-gold-dark hover:text-gold"
+          >
+            Visit Common Sense Media &rarr;
+          </a>
+        </section>
 
         {/* Premium hook */}
         <div className="mt-8 rounded-2xl border-2 border-dashed border-border bg-white/50 p-6 text-center opacity-60">
