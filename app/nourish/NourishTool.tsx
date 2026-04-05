@@ -304,7 +304,7 @@ export default function NourishTool() {
         {/* Store Suggestion */}
         <div className="mb-8 rounded-xl border border-border bg-white p-5">
           <p className="text-sm text-charcoal">
-            <strong>For ZIP {userZip}</strong>, consider checking <strong>Walmart</strong>, <strong>Aldi</strong>, and <strong>HEB</strong> for the best prices on your list. Buying store-brand where available can save you another 15\u201325%.
+            <strong>For ZIP {userZip}</strong>, consider checking <strong>Walmart</strong>, <strong>Aldi</strong>, and <strong>HEB</strong> for the best prices on your list. Buying store-brand where available can save you another 15–25%.
           </p>
         </div>
 
