@@ -55,6 +55,7 @@ const questions: QuizQuestion[] = [
 export default function BrightWatchTool() {
   const [phase, setPhase] = useState<'quiz' | 'loading' | 'email' | 'results'>('quiz');
   const [results, setResults] = useState<BrightWatchResponse | null>(null);
+  const [emailData, setEmailData] = useState<Record<string, unknown>>({});
   const [error, setError] = useState(false);
 
   const handleComplete = useCallback(async (answers: Record<string, string | string[] | number>) => {
@@ -73,7 +74,16 @@ export default function BrightWatchTool() {
       });
 
       const data = await res.json();
-      setResults(data.data);
+      const bwData = data.data as BrightWatchResponse;
+      setResults(bwData);
+      setEmailData({
+        childAge: answers.age as string,
+        context: answers.context as string,
+        recommendations: bwData?.recommendations?.map((r) => ({
+          name: r.name, platform: r.platform, score: r.score, why: r.why,
+        })),
+        avoid: bwData?.avoid,
+      });
       setPhase('email');
     } catch {
       setError(true);
@@ -120,7 +130,7 @@ export default function BrightWatchTool() {
   return (
     <div className="min-h-screen bg-cream">
       {phase === 'email' && (
-        <EmailCapture tool={tool} onDismiss={() => setPhase('results')} />
+        <EmailCapture tool={tool} emailResultsData={emailData} onDismiss={() => setPhase('results')} />
       )}
 
       <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12">

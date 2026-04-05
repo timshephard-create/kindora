@@ -73,6 +73,36 @@ export interface BrightWatchResponse {
   avoid: string;
 }
 
+// --- Nourish ---
+
+export interface NourishMeal {
+  name: string;
+  prepTime: string;
+  cost: string;
+}
+
+export interface NourishDay {
+  day: string;
+  breakfast: NourishMeal;
+  lunch: NourishMeal;
+  dinner: NourishMeal;
+}
+
+export interface NourishShoppingItem {
+  item: string;
+  quantity: string;
+  estimatedCost: string;
+  category: 'Produce' | 'Protein' | 'Dairy' | 'Pantry' | 'Frozen';
+}
+
+export interface NourishResponse {
+  weeklyPlan: NourishDay[];
+  shoppingList: NourishShoppingItem[];
+  weeklyTotal: string;
+  savingsTips: string[];
+  insight: string;
+}
+
 // --- Lead / Email ---
 
 export interface LeadInput {

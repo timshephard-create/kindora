@@ -5,6 +5,7 @@ const colorMap: Record<string, { bg: string; border: string; badge: string }> = 
   sage: { bg: 'bg-sage-pale', border: 'border-sage-light/30', badge: 'bg-sage/10 text-sage' },
   sky: { bg: 'bg-sky-pale', border: 'border-sky-light/30', badge: 'bg-sky/10 text-sky' },
   gold: { bg: 'bg-gold-pale', border: 'border-gold/30', badge: 'bg-gold/10 text-gold-dark' },
+  terra: { bg: 'bg-terra-pale', border: 'border-terra-light/30', badge: 'bg-terra/10 text-terra' },
 };
 
 export default function HubCard({ tool }: { tool: ToolConfig }) {

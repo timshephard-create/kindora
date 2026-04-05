@@ -7,10 +7,11 @@ import type { ToolConfig } from '@/config/platform';
 interface EmailCaptureProps {
   tool: ToolConfig;
   profileSummary?: string;
+  emailResultsData?: Record<string, unknown>;
   onDismiss: () => void;
 }
 
-export default function EmailCapture({ tool, profileSummary, onDismiss }: EmailCaptureProps) {
+export default function EmailCapture({ tool, profileSummary, emailResultsData, onDismiss }: EmailCaptureProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -46,7 +47,12 @@ export default function EmailCapture({ tool, profileSummary, onDismiss }: EmailC
         fetch('/api/email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, tool: tool.id }),
+          body: JSON.stringify({
+            name,
+            email,
+            tool: tool.id,
+            results: emailResultsData,
+          }),
         }),
       ]);
       setStatus('success');

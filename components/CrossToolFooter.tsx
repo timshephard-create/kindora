@@ -6,6 +6,7 @@ const colorMap: Record<string, string> = {
   sage: 'hover:bg-sage-pale border-sage-light/30',
   sky: 'hover:bg-sky-pale border-sky-light/30',
   gold: 'hover:bg-gold-pale border-gold/30',
+  terra: 'hover:bg-terra-pale border-terra-light/30',
 };
 
 export default function CrossToolFooter({ currentToolId }: { currentToolId: string }) {
@@ -19,7 +20,7 @@ export default function CrossToolFooter({ currentToolId }: { currentToolId: stri
       <p className="mb-6 text-center text-sm text-mid">
         Each tool helps your family navigate a different system.
       </p>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {otherTools.map((tool: ToolConfig) => (
           <Link
             key={tool.id}

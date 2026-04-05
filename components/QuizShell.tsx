@@ -16,6 +16,7 @@ const colorClasses: Record<string, { button: string; progress: string }> = {
   sage: { button: 'bg-sage hover:bg-sage-light', progress: 'bg-sage' },
   sky: { button: 'bg-sky hover:bg-sky-light', progress: 'bg-sky' },
   gold: { button: 'bg-gold hover:bg-gold-dark', progress: 'bg-gold' },
+  terra: { button: 'bg-terra hover:bg-terra-light', progress: 'bg-terra' },
 };
 
 export default function QuizShell({ toolColor, questions, onComplete }: QuizShellProps) {

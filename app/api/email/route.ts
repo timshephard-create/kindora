@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { emailInputSchema } from '@/lib/validations';
-import { sendWelcomeEmail } from '@/lib/email';
+import { z } from 'zod';
+import { sendWelcomeEmail, type EmailResultsData } from '@/lib/email';
+
+const emailInputSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  tool: z.string().min(1),
+  results: z.record(z.string(), z.unknown()).optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,9 +21,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, email, tool } = parsed.data;
+    const { name, email, tool, results } = parsed.data;
 
-    await sendWelcomeEmail(name, email, tool);
+    await sendWelcomeEmail(name, email, tool, results as EmailResultsData | undefined);
 
     return NextResponse.json({ success: true });
   } catch (err) {

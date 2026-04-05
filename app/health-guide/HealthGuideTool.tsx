@@ -113,6 +113,7 @@ export default function HealthGuideTool() {
   const [phase, setPhase] = useState<'quiz' | 'loading' | 'email' | 'results'>('quiz');
   const [plans, setPlans] = useState<PlanRecommendation[]>([]);
   const [insight, setInsight] = useState('');
+  const [emailData, setEmailData] = useState<Record<string, unknown>>({});
   const [error, setError] = useState(false);
 
   const handleComplete = useCallback(async (answers: Record<string, string | string[] | number>) => {
@@ -132,6 +133,14 @@ export default function HealthGuideTool() {
 
       const recommendations = generateRecommendations(profile);
       setPlans(recommendations);
+
+      const topPlan = recommendations[0];
+      setEmailData({
+        topPlanName: topPlan?.name,
+        topPlanWhy: topPlan?.why,
+        topWatchOut: topPlan?.watchOut?.[0],
+        employerCoverage: profile.employerCoverage,
+      });
 
       // Fetch AI insight in background
       fetch('/api/insight', {
@@ -189,7 +198,7 @@ export default function HealthGuideTool() {
   return (
     <div className="min-h-screen bg-cream">
       {phase === 'email' && (
-        <EmailCapture tool={tool} onDismiss={() => setPhase('results')} />
+        <EmailCapture tool={tool} emailResultsData={emailData} onDismiss={() => setPhase('results')} />
       )}
 
       <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12">

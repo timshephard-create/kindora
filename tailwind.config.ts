@@ -23,6 +23,9 @@ const config: Config = {
         gold: 'var(--gold)',
         'gold-dark': 'var(--gold-dark)',
         'gold-pale': 'var(--gold-pale)',
+        terra: 'var(--terra)',
+        'terra-light': 'var(--terra-light)',
+        'terra-pale': 'var(--terra-pale)',
       },
       fontFamily: {
         heading: ['var(--font-heading)', 'serif'],

@@ -14,6 +14,7 @@ const selectedColors: Record<string, string> = {
   sage: 'border-sage bg-sage-pale text-sage',
   sky: 'border-sky bg-sky-pale text-sky',
   gold: 'border-gold bg-gold-pale text-gold-dark',
+  terra: 'border-terra bg-terra-pale text-terra',
 };
 
 export default function OptionButton({

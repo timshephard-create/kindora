@@ -130,6 +130,7 @@ export default function SproutTool() {
     insight: string;
     isGapMode: boolean;
     fallback: boolean;
+    emailData: Record<string, unknown>;
   } | null>(null);
   const [error, setError] = useState(false);
 
@@ -183,6 +184,14 @@ export default function SproutTool() {
         insight: insightData.data?.insight || '',
         isGapMode,
         fallback: placesData.fallback || false,
+        emailData: {
+          savingsTotal: savings.total,
+          ccdf: savings.ccdf,
+          fsa: savings.fsa,
+          ctc: savings.ctc,
+          income,
+          isGapMode,
+        },
       });
 
       setPhase('email');
@@ -233,6 +242,7 @@ export default function SproutTool() {
       {phase === 'email' && (
         <EmailCapture
           tool={tool}
+          emailResultsData={results.emailData}
           onDismiss={() => setPhase('results')}
         />
       )}

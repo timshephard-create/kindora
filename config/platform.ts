@@ -2,7 +2,7 @@ export const PLATFORM = {
   name: 'Famly',
   tagline: 'The systems are broken. We help you navigate them.',
   description:
-    'Three tools to help your family find care, understand your health options, and protect your kids\u2019 screen time.',
+    'Four tools to help your family find care, understand your health options, protect your kids\u2019 screen time, and eat well on a budget.',
   domain: 'famly.app',
   url: 'https://famly.app',
   email: {
@@ -11,7 +11,7 @@ export const PLATFORM = {
   },
 } as const;
 
-export type ToolId = 'childcare' | 'health' | 'media';
+export type ToolId = 'childcare' | 'health' | 'media' | 'meal';
 
 export interface ToolConfig {
   id: ToolId;
@@ -65,6 +65,19 @@ export const TOOLS: Record<ToolId, ToolConfig> = {
     emailSubject: `Your ${PLATFORM.name} media recommendations`,
     emailCta: 'Send my recommendations',
     premiumLabel: 'content library',
+  },
+  meal: {
+    id: 'meal',
+    name: 'Nourish',
+    description:
+      'Budget-smart meal planning for your family. Get a personalized weekly meal plan, ingredient list, and where to buy everything at the lowest price near you.',
+    route: '/nourish',
+    color: 'terra',
+    icon: '\uD83E\uDD57',
+    badge: 'Meal Planning',
+    emailSubject: `Your ${PLATFORM.name} meal plan is ready`,
+    emailCta: 'Send my meal plan',
+    premiumLabel: 'full meal library',
   },
 } as const;
 

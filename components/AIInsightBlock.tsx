@@ -7,6 +7,7 @@ const bgColors: Record<string, string> = {
   sage: 'bg-sage-pale border-sage-light/30',
   sky: 'bg-sky-pale border-sky-light/30',
   gold: 'bg-gold-pale border-gold/30',
+  terra: 'bg-terra-pale border-terra-light/30',
 };
 
 export default function AIInsightBlock({ insight, color = 'sage' }: AIInsightBlockProps) {
