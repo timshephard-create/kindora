@@ -61,7 +61,7 @@ export async function getPlans(params: {
   state: string;
   income: number;
   people: HouseholdMember[];
-  year: string;
+  year: number;
 }): Promise<CMSPlan[]> {
   if (!CMS_API_KEY) return [];
 
@@ -124,7 +124,7 @@ export async function getSubsidyEstimate(params: {
             state: params.state,
             zipcode: params.zip,
           },
-          year: new Date().getFullYear().toString(),
+          year: new Date().getFullYear(),
         }),
       },
     );

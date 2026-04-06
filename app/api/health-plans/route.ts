@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     }
 
     const members = buildHouseholdMembers(householdSize);
-    const year = new Date().getFullYear().toString();
+    const year = new Date().getFullYear();
 
     // 2. Fetch plans and subsidy in parallel
     const [plans, subsidy] = await Promise.all([
