@@ -1,13 +1,15 @@
 export const PLATFORM = {
-  name: 'Famly',
+  name: 'Kindora',
+  brandName: 'Kindora World',
   tagline: 'The systems are broken. We help you navigate them.',
   description:
     'Four tools to help your family find care, understand your health options, protect your kids\u2019 screen time, and eat well on a budget.',
-  domain: 'famly.app',
-  url: 'https://famly.app',
+  domain: 'kindora.world',
+  url: 'https://kindora.world',
+  legalEntity: 'Creative Mind Ventures LLC',
   email: {
-    fromName: 'The Famly Team',
-    fromEmail: 'hello@famly.app',
+    fromName: 'Tim at Kindora World',
+    fromEmail: 'tim@timshephard.co',
   },
 } as const;
 

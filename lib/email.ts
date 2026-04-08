@@ -4,7 +4,7 @@ const BREVO_API_KEY = process.env.BREVO_API_KEY || '';
 const BREVO_FROM_EMAIL = process.env.BREVO_FROM_EMAIL || PLATFORM.email.fromEmail;
 const BREVO_FROM_NAME = process.env.BREVO_FROM_NAME || PLATFORM.email.fromName;
 
-const SITE_URL = 'https://famly-five.vercel.app';
+const SITE_URL = 'https://kindora.world';
 
 export interface EmailResultsData {
   // Sprout

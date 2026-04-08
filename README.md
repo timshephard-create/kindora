@@ -1,6 +1,6 @@
-# Famly
+# Kindora
 
-A family navigation platform with four tools to help families find care, understand health options, make smart screen time choices, and eat well on a budget.
+A family navigation platform by Kindora World. Four tools to help families find care, understand health options, make smart screen time choices, and eat well on a budget.
 
 ## Tools
 
@@ -77,6 +77,7 @@ npx cap open android
 All platform and tool names are config-driven. Edit `config/platform.ts` to rename everything:
 
 - `PLATFORM.name` — changes the platform name everywhere
+- `PLATFORM.brandName` — the full brand name (e.g. "Kindora World")
 - `PLATFORM.tagline` — changes the hero tagline
 - `TOOLS.childcare.name` — changes "Sprout" to whatever you want
 - etc.
@@ -98,3 +99,7 @@ components/           — Shared UI components
 lib/                  — Server-side logic (places, savings, healthguide, airtable, email)
 types/                — Shared TypeScript types
 ```
+
+## Legal
+
+Kindora World is a product of Creative Mind Ventures LLC.
