@@ -1,16 +1,23 @@
 import { Page, expect } from '@playwright/test';
 
 /**
+ * Find a button whose visible text starts with the given string.
+ * This avoids substring ambiguity (e.g. "Low" matching "lower").
+ */
+function buttonStartingWith(page: Page, text: string) {
+  // Escape regex special chars in the answer text
+  const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return page.locator('button').filter({ hasText: new RegExp(`^\\s*${escaped}`) }).first();
+}
+
+/**
  * Click a single-select auto-advance option. Waits for the question
  * heading to appear, clicks the option, then waits for the question
  * to change (auto-advance fires after 250ms).
  */
 export async function selectAutoAdvance(page: Page, questionText: string, answerText: string) {
-  // Wait for question to be visible
   await page.waitForSelector(`h2:has-text("${questionText}")`, { timeout: 10000 });
-  // Click the option button containing the answer text
-  await page.locator(`button:has-text("${answerText}")`).click();
-  // Wait for auto-advance animation (250ms delay + 250ms animation)
+  await buttonStartingWith(page, answerText).click();
   await page.waitForTimeout(600);
 }
 
@@ -20,7 +27,7 @@ export async function selectAutoAdvance(page: Page, questionText: string, answer
  */
 export async function selectAndContinue(page: Page, questionText: string, answerText: string) {
   await page.waitForSelector(`h2:has-text("${questionText}")`, { timeout: 10000 });
-  await page.locator(`button:has-text("${answerText}")`).click();
+  await buttonStartingWith(page, answerText).click();
   await page.waitForTimeout(200);
   await page.locator('button:has-text("Continue"), button:has-text("See my results")').click();
   await page.waitForTimeout(600);
@@ -64,7 +71,7 @@ export async function setSliderAndContinue(page: Page, questionText: string, val
 export async function selectMultiAndContinue(page: Page, questionText: string, answers: string[]) {
   await page.waitForSelector(`h2:has-text("${questionText}")`, { timeout: 10000 });
   for (const answer of answers) {
-    await page.locator(`button:has-text("${answer}")`).click();
+    await buttonStartingWith(page, answer).click();
     await page.waitForTimeout(200);
   }
   await page.locator('button:has-text("Continue"), button:has-text("See my results")').click();
