@@ -19,7 +19,8 @@ export interface ValidationResult {
 
 const TOOL_PROMPTS: Record<string, string> = {
   health: `Review this health insurance recommendation.
-Flag if: (1) any dollar amount appears that wasn't in the provided calculation data, (2) a specific plan is called definitively 'best' without qualification, (3) any medical advice is given about specific conditions or medications, (4) recommendation contradicts the user's stated cash flow comfort level.
+Flag if: (1) a specific plan is called definitively 'best' without qualification, (2) any medical advice is given about specific conditions or medications, (3) recommendation contradicts the user's stated cash flow comfort level.
+Do NOT flag dollar amounts for subsidies or premiums — those are intentionally deferred to plan cards.
 Return JSON only: {"valid": boolean, "flags": string[], "confidence": "high"|"medium"|"low", "safeguarded_response": "corrected version if flags exist, otherwise same as input"}`,
 
   childcare: `Review this childcare recommendation.
@@ -137,13 +138,26 @@ export async function validateRecommendation(
         safeguarded_response: string;
       };
 
+      const SAFE_FALLBACKS: Record<string, string> = {
+        health: 'Based on your profile, we recommend exploring ACA Marketplace plans for your situation. Please see the plan cards below for cost estimates, and verify details at Healthcare.gov before enrolling.',
+        childcare: 'Based on your family profile, there are savings programs that may help reduce your childcare costs. See the results below for providers near you and estimated savings.',
+        media: 'We have recommendations for age-appropriate content for your child. Please review the picks below and verify availability on each platform.',
+        meal: 'Your personalized meal plan is ready below. Please verify ingredients against your family\'s specific allergies before preparing any meals.',
+      };
+
+      const hasFlags = parsed.flags && parsed.flags.length > 0;
+      let safeguardedResponse = rawOutput;
+      if (hasFlags) {
+        safeguardedResponse = parsed.safeguarded_response && parsed.safeguarded_response.trim().length > 0
+          ? parsed.safeguarded_response
+          : SAFE_FALLBACKS[toolName] || rawOutput;
+      }
+
       const result: ValidationResult = {
         valid: parsed.valid,
         flags: parsed.flags || [],
         confidence: parsed.confidence || 'medium',
-        safeguardedResponse: parsed.flags?.length > 0
-          ? parsed.safeguarded_response || rawOutput
-          : rawOutput,
+        safeguardedResponse,
       };
 
       // Log if flags were found
