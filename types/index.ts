@@ -186,4 +186,5 @@ export interface QuizQuestion {
   suffix?: string;
   placeholder?: string;
   validate?: (value: string) => string | null;
+  shouldShow?: (answers: Record<string, string | string[] | number>) => boolean;
 }

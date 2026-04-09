@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuizQuestion } from '@/types';
 import OptionButton from './OptionButton';
@@ -23,47 +23,86 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[] | number>>({});
   const [direction, setDirection] = useState(1);
-
-  const question = questions[step];
-  const total = questions.length;
-  const progress = ((step + 1) / total) * 100;
   const colors = colorClasses[toolColor] || colorClasses.sage;
 
-  const currentAnswer = answers[question.id];
+  // Filter to only visible questions based on current answers
+  const visibleQuestions = useMemo(() => {
+    return questions.filter((q) => !q.shouldShow || q.shouldShow(answers));
+  }, [questions, answers]);
+
+  const visibleIndex = useMemo(() => {
+    // Map raw step to position in visible list
+    let count = 0;
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      if (!q.shouldShow || q.shouldShow(answers)) {
+        if (i === step) return count;
+        count++;
+      }
+    }
+    return count;
+  }, [questions, answers, step]);
+
+  const total = visibleQuestions.length;
+  const question = questions[step];
+  const progress = total > 0 ? ((visibleIndex + 1) / total) * 100 : 0;
+
+  const currentAnswer = answers[question?.id];
   const hasAnswer = currentAnswer !== undefined && currentAnswer !== '' &&
     !(Array.isArray(currentAnswer) && currentAnswer.length === 0);
 
+  // Find next visible step
+  const findNextStep = useCallback((from: number, dir: 1 | -1): number | null => {
+    let i = from + dir;
+    while (i >= 0 && i < questions.length) {
+      const q = questions[i];
+      if (!q.shouldShow || q.shouldShow(answers)) return i;
+      i += dir;
+    }
+    return null;
+  }, [questions, answers]);
+
   const goNext = useCallback(() => {
-    if (step < total - 1) {
+    const next = findNextStep(step, 1);
+    if (next !== null) {
       setDirection(1);
-      setStep((s) => s + 1);
+      setStep(next);
     } else {
       onComplete(answers);
     }
-  }, [step, total, answers, onComplete]);
+  }, [step, findNextStep, answers, onComplete]);
 
   const goBack = useCallback(() => {
-    if (step > 0) {
+    const prev = findNextStep(step, -1);
+    if (prev !== null) {
       setDirection(-1);
-      setStep((s) => s - 1);
+      setStep(prev);
     }
-  }, [step]);
+  }, [step, findNextStep]);
 
   const handleSingleSelect = useCallback(
     (value: string) => {
-      setAnswers((prev) => ({ ...prev, [question.id]: value }));
+      const newAnswers = { ...answers, [question.id]: value };
+      setAnswers(newAnswers);
       if (question.autoAdvance) {
         setTimeout(() => {
-          if (step < total - 1) {
+          // Find next visible step with updated answers
+          let i = step + 1;
+          while (i < questions.length) {
+            const q = questions[i];
+            if (!q.shouldShow || q.shouldShow(newAnswers)) break;
+            i++;
+          }
+          if (i < questions.length) {
             setDirection(1);
-            setStep((s) => s + 1);
+            setStep(i);
           } else {
-            onComplete({ ...answers, [question.id]: value });
+            onComplete(newAnswers);
           }
         }, 250);
       }
     },
-    [question, step, total, answers, onComplete],
+    [question, step, answers, questions, onComplete],
   );
 
   const handleMultiSelect = useCallback(
@@ -93,12 +132,26 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
     [question.id],
   );
 
+  // Guard: if current step is not visible (e.g. answers changed), skip forward
+  if (question && question.shouldShow && !question.shouldShow(answers)) {
+    const next = findNextStep(step, 1);
+    if (next !== null) {
+      setStep(next);
+    }
+    return null;
+  }
+
+  if (!question) return null;
+
+  const isFirstVisible = findNextStep(step, -1) === null;
+  const isLastVisible = findNextStep(step, 1) === null;
+
   return (
     <div className="mx-auto max-w-xl px-5 py-8 sm:py-12">
       {/* Progress bar */}
       <div className="mb-8">
         <div className="mb-2 flex justify-between text-xs text-mid">
-          <span>Question {step + 1} of {total}</span>
+          <span>Question {visibleIndex + 1} of {total}</span>
           <span>{Math.round(progress)}%</span>
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
@@ -129,7 +182,6 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
           )}
 
           <div className="mt-6 space-y-3">
-            {/* Single select */}
             {question.type === 'single' && question.options?.map((opt) => (
               <OptionButton
                 key={opt.value}
@@ -140,7 +192,6 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
               />
             ))}
 
-            {/* Multi select */}
             {question.type === 'multi' && question.options?.map((opt) => (
               <OptionButton
                 key={opt.value}
@@ -152,7 +203,6 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
               />
             ))}
 
-            {/* Text input */}
             {question.type === 'text' && (
               <input
                 type="text"
@@ -164,7 +214,6 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
               />
             )}
 
-            {/* Slider */}
             {question.type === 'slider' && (
               <SliderInput
                 value={(currentAnswer as number) ?? question.min ?? 0}
@@ -185,7 +234,7 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
       <div className="mt-8 flex items-center justify-between">
         <button
           onClick={goBack}
-          disabled={step === 0}
+          disabled={isFirstVisible}
           className="rounded-lg px-4 py-2 text-sm font-medium text-mid transition-colors hover:text-charcoal disabled:invisible"
         >
           &larr; Back
@@ -197,7 +246,7 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
             disabled={!hasAnswer}
             className={`rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed ${colors.button}`}
           >
-            {step === total - 1 ? 'See my results' : 'Continue'}
+            {isLastVisible ? 'See my results' : 'Continue'}
           </button>
         )}
       </div>

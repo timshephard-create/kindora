@@ -23,7 +23,7 @@ const tool = TOOLS.health;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const questions: QuizQuestion[] = [
-  // --- Pre-triage (Part 1) ---
+  // Q1 — Always show
   {
     id: 'coverageReason',
     type: 'single',
@@ -39,6 +39,7 @@ const questions: QuizQuestion[] = [
       { value: 'exploring', label: 'Just exploring my options' },
     ],
   },
+  // Q2 — Always show
   {
     id: 'hasChildren',
     type: 'single',
@@ -49,17 +50,20 @@ const questions: QuizQuestion[] = [
       { value: 'no', label: 'No' },
     ],
   },
+  // Q3 — ONLY if Q1 = lost_job
   {
     id: 'daysSinceLostCoverage',
     type: 'single',
     label: 'How long ago did you lose coverage?',
     autoAdvance: true,
+    shouldShow: (a) => a.coverageReason === 'lost_job',
     options: [
       { value: 'under_30', label: 'Less than 30 days ago' },
       { value: '30_60', label: '30\u201360 days ago' },
       { value: 'over_60', label: 'More than 60 days ago' },
     ],
   },
+  // Q4 — Always show
   {
     id: 'faithCommunityMember',
     type: 'single',
@@ -71,7 +75,7 @@ const questions: QuizQuestion[] = [
       { value: 'no', label: 'No' },
     ],
   },
-  // --- Existing profile questions ---
+  // Q5 — Always show
   {
     id: 'zip',
     type: 'text',
@@ -80,6 +84,7 @@ const questions: QuizQuestion[] = [
     placeholder: 'e.g. 78701',
     validate: (v: string) => /^\d{5}$/.test(v) ? null : 'Please enter a 5-digit ZIP code',
   },
+  // Q6 — Always show
   {
     id: 'householdSize',
     type: 'single',
@@ -92,6 +97,7 @@ const questions: QuizQuestion[] = [
       { value: 'family_5_plus', label: 'Family of 5+' },
     ],
   },
+  // Q7 — Always show
   {
     id: 'income',
     type: 'slider',
@@ -102,11 +108,13 @@ const questions: QuizQuestion[] = [
     step: 5000,
     prefix: '$',
   },
+  // Q8 — Skip if lost_job or never_had
   {
     id: 'employerCoverage',
     type: 'single',
     label: 'Do you have employer-sponsored coverage?',
     autoAdvance: true,
+    shouldShow: (a) => a.coverageReason !== 'lost_job' && a.coverageReason !== 'never_had',
     options: [
       { value: 'good', label: 'Yes \u2014 good coverage (70%+)' },
       { value: 'poor', label: 'Yes \u2014 but poor coverage (<70%)' },
@@ -114,6 +122,7 @@ const questions: QuizQuestion[] = [
       { value: 'medicaid', label: 'Currently on Medicaid' },
     ],
   },
+  // Q9 — Always show
   {
     id: 'healthUsage',
     type: 'single',
@@ -126,6 +135,7 @@ const questions: QuizQuestion[] = [
       { value: 'unpredictable', label: 'Unpredictable \u2014 young kids, expect surprises' },
     ],
   },
+  // Q10 — Always show
   {
     id: 'priority',
     type: 'single',
@@ -138,17 +148,19 @@ const questions: QuizQuestion[] = [
       { value: 'want_hsa', label: 'I want an HSA' },
     ],
   },
+  // Q11 — Always show (reworded)
   {
     id: 'doctorImportance',
     type: 'single',
-    label: 'How important is keeping your current doctor?',
+    label: 'Do you have doctors you want to be able to keep seeing?',
     autoAdvance: true,
     options: [
-      { value: 'essential', label: 'Essential \u2014 won\u2019t switch' },
+      { value: 'essential', label: 'Yes \u2014 must keep my doctors' },
       { value: 'preferred', label: 'Preferred but flexible' },
-      { value: 'open', label: 'Open to switching' },
+      { value: 'open', label: 'Open to finding new doctors' },
     ],
   },
+  // Q12 — Always show
   {
     id: 'riskTolerance',
     type: 'single',
@@ -161,7 +173,7 @@ const questions: QuizQuestion[] = [
       { value: 'high', label: 'High \u2014 I\u2019ll gamble on lower premiums' },
     ],
   },
-  // --- Utilization detail ---
+  // Q13 — Always show
   {
     id: 'planMembers',
     type: 'single',
@@ -174,6 +186,7 @@ const questions: QuizQuestion[] = [
       { value: 'whole_family', label: 'Whole family' },
     ],
   },
+  // Q14 — Always show
   {
     id: 'prescriptions',
     type: 'single',
@@ -185,6 +198,7 @@ const questions: QuizQuestion[] = [
       { value: 'brand', label: 'Brand name' },
     ],
   },
+  // Q15 — Always show
   {
     id: 'specialistVisits',
     type: 'single',
@@ -197,6 +211,7 @@ const questions: QuizQuestion[] = [
       { value: '8_plus', label: '8+' },
     ],
   },
+  // Q16 — Always show
   {
     id: 'plannedProcedures',
     type: 'single',
@@ -209,6 +224,7 @@ const questions: QuizQuestion[] = [
       { value: 'dental', label: 'Major dental' },
     ],
   },
+  // Q17 — Always show
   {
     id: 'cashFlowComfort',
     type: 'single',
@@ -220,17 +236,26 @@ const questions: QuizQuestion[] = [
       { value: 'no', label: 'No' },
     ],
   },
+  // Q18 — Skip if lost_job, never_had, or no employer coverage
   {
     id: 'employerHsa',
     type: 'single',
     label: 'Does your employer offer an HSA-eligible plan?',
     autoAdvance: true,
+    shouldShow: (a) => {
+      if (a.coverageReason === 'lost_job' || a.coverageReason === 'never_had') return false;
+      if (a.employerCoverage === 'none' || a.employerCoverage === 'medicaid') return false;
+      // Also show if they want HSA regardless
+      if (a.priority === 'want_hsa') return true;
+      return true;
+    },
     options: [
       { value: 'yes', label: 'Yes' },
       { value: 'no', label: 'No' },
       { value: 'not_sure', label: 'Not sure' },
     ],
   },
+  // Q19 — Always show
   {
     id: 'incomeBracket',
     type: 'single',
@@ -317,16 +342,23 @@ function OptionCard({ title, bestFor, pros, cons, ctaLabel, ctaUrl, note }: {
 // ROUTING CARDS (Part 1)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+function isTexasZip(zip: string): boolean {
+  const prefix = parseInt(zip?.slice(0, 3) || '0', 10);
+  return prefix >= 750 && prefix <= 799;
+}
+
 function RoutingCards({ answers }: { answers: Record<string, string | string[] | number> }) {
   const hasKids = answers.hasChildren === 'yes';
   const reason = answers.coverageReason as string;
   const daysSince = answers.daysSinceLostCoverage as string;
   const income = answers.income as number;
+  const zip = answers.zip as string || '';
   const householdSize = answers.householdSize as string;
-  const isFamily = householdSize === 'family_3_4' || householdSize === 'family_5_plus';
+  const isFamily = householdSize === 'family_3_4' || householdSize === 'family_5_plus' || householdSize === 'me_partner';
   const showCobra = reason === 'lost_job' && (daysSince === 'under_30' || daysSince === '30_60');
+  const isTexas = isTexasZip(zip);
   const showCoverageGap = isFamily && income < 31000;
-  const showChip = hasKids && income < 60000;
+  const showChip = hasKids;
 
   if (!showChip && !showCobra && !showCoverageGap) return null;
 
@@ -363,18 +395,30 @@ function RoutingCards({ answers }: { answers: Record<string, string | string[] |
 
       {showCoverageGap && (
         <div className="rounded-2xl border-2 border-[#B85C3A] bg-[#FDF0EC] p-5">
-          <h3 className="mb-2 font-heading text-base font-bold text-[#B85C3A]">Texas coverage gap &mdash; know your options</h3>
-          <p className="mb-2 text-sm leading-relaxed text-charcoal">
-            Texas has not expanded Medicaid under the ACA. If your household income is below about $31,000 for a family of 4, you may fall into the &ldquo;coverage gap&rdquo; &mdash; earning too much for traditional Medicaid but too little for meaningful marketplace subsidies.
-          </p>
-          <p className="mb-2 text-xs font-semibold text-charcoal">If you&apos;re in this gap, here are your real options:</p>
-          <ul className="mb-3 space-y-1 text-xs text-charcoal">
-            <li>&#8226; Federally Qualified Health Centers (FQHCs) &mdash; sliding scale fees based on income</li>
-            <li>&#8226; Your children likely qualify for CHIP regardless</li>
-            <li>&#8226; Community health programs through your county</li>
-            <li>&#8226; Short-term health plans as a bridge (limited coverage, not ACA-compliant)</li>
-          </ul>
-          <a href="https://findahealthcenter.hrsa.gov" target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#B85C3A] px-4 py-2 text-xs font-semibold text-white hover:opacity-90">Find an FQHC near you &rarr;</a>
+          {isTexas ? (
+            <>
+              <h3 className="mb-2 font-heading text-base font-bold text-[#B85C3A]">Texas coverage gap &mdash; know your options</h3>
+              <p className="mb-2 text-sm leading-relaxed text-charcoal">
+                Texas has not expanded Medicaid under the ACA. If your household income is below about $31,000 for a family of 4, you may fall into the &ldquo;coverage gap&rdquo; &mdash; earning too much for traditional Medicaid but too little for meaningful marketplace subsidies.
+              </p>
+              <p className="mb-2 text-xs font-semibold text-charcoal">If you&apos;re in this gap, here are your real options:</p>
+              <ul className="mb-3 space-y-1 text-xs text-charcoal">
+                <li>&#8226; Federally Qualified Health Centers (FQHCs) &mdash; sliding scale fees based on income</li>
+                <li>&#8226; Your children likely qualify for CHIP regardless</li>
+                <li>&#8226; Community health programs through your county</li>
+                <li>&#8226; Short-term health plans as a bridge (limited coverage, not ACA-compliant)</li>
+              </ul>
+              <a href="https://findahealthcenter.hrsa.gov" target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#B85C3A] px-4 py-2 text-xs font-semibold text-white hover:opacity-90">Find an FQHC near you &rarr;</a>
+            </>
+          ) : (
+            <>
+              <h3 className="mb-2 font-heading text-base font-bold text-sage">Your state expanded Medicaid</h3>
+              <p className="mb-2 text-sm leading-relaxed text-charcoal">
+                Based on your income, you may qualify for free or low-cost Medicaid coverage. Your state expanded Medicaid under the ACA, which means adults at your income level are eligible.
+              </p>
+              <a href="https://www.medicaid.gov/about-us/beneficiary-resources/index.html" target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-sage px-4 py-2 text-xs font-semibold text-white hover:bg-sage-light">Check Medicaid eligibility &rarr;</a>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -398,6 +442,8 @@ function AllOptionsSection({ answers }: { answers: Record<string, string | strin
   const isHdhp = priority === 'want_hsa' || usage === 'minimal';
   const aboveSubsidy = income > 100000;
   const hasMixedHousehold = (answers.planMembers === 'me_spouse' || answers.planMembers === 'whole_family' || answers.planMembers === 'me_kids');
+  const hasEmployerForOne = answers.employerCoverage === 'good' || answers.employerCoverage === 'poor';
+  const showSplitCoverage = hasMixedHousehold && (hasEmployerForOne || aboveSubsidy);
 
   return (
     <section className="mt-10">
@@ -446,7 +492,7 @@ function AllOptionsSection({ answers }: { answers: Record<string, string | strin
         )}
 
         {/* Part 5 — Two-Plan Strategy */}
-        {hasMixedHousehold && (
+        {showSplitCoverage && (
           <div className="rounded-2xl border-2 border-sky-light bg-sky-pale p-5">
             <h3 className="mb-1 font-heading text-base font-bold text-sky">Split Coverage Strategy</h3>
             <p className="mb-2 text-xs italic text-mid">Best for: Couples with different health needs or income situations</p>
@@ -715,9 +761,16 @@ export default function HealthGuideTool() {
 
   const isHdhp = costResult?.recommendation?.winner?.plan?.type?.toLowerCase().includes('hdhp') ||
     costResult?.recommendation?.winner?.plan?.name?.toLowerCase().includes('hsa') ||
-    (quizAnswers.priority === 'want_hsa') ||
-    (quizAnswers.employerHsa === 'yes');
-  const showHsaGuide = isHdhp && quizAnswers.employerHsa === 'yes' && costResult?.hsaAnalysis?.eligible;
+    quizAnswers.priority === 'want_hsa' ||
+    quizAnswers.employerHsa === 'yes';
+
+  // Show cash pay for HDHP profiles OR families with tight cash flow
+  const showCashPay = isHdhp || quizAnswers.cashFlowComfort === 'tight' || quizAnswers.cashFlowComfort === 'no';
+
+  // Show HSA guide when HSA eligible OR marketplace HSA plan recommended OR user wants HSA
+  const showHsaGuide = costResult?.hsaAnalysis?.eligible ||
+    quizAnswers.priority === 'want_hsa' ||
+    costResult?.recommendation?.winner?.plan?.name?.toLowerCase().includes('hsa');
 
   return (
     <div className="min-h-screen bg-cream">
@@ -764,10 +817,10 @@ export default function HealthGuideTool() {
           <div className="space-y-6">{plans.map((plan, i) => <PlanCard key={i} plan={plan} />)}</div>
         </section>
 
-        {/* Part 3 — Cash Pay (only for HDHP/HSA profiles) */}
-        {isHdhp && costResult && <CashPaySection costResult={costResult} />}
+        {/* Part 3 — Cash Pay (HDHP/HSA or tight cash flow) */}
+        {showCashPay && costResult && <CashPaySection costResult={costResult} />}
 
-        {/* Part 4 — HSA Guide (only when hsaEligible) */}
+        {/* Part 4 — HSA Guide (eligible, wants HSA, or HSA plan recommended) */}
         {showHsaGuide && costResult && <HSAGuide hsaAnalysis={costResult.hsaAnalysis} />}
 
         {/* Part 2 + 5 — All Options + Split Coverage */}
