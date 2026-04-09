@@ -8,6 +8,7 @@ import ErrorState from '@/components/ErrorState';
 import LoadingState from '@/components/LoadingState';
 import AIInsightBlock from '@/components/AIInsightBlock';
 import CrossToolFooter from '@/components/CrossToolFooter';
+import RecommendationDisclaimer from '@/components/RecommendationDisclaimer';
 import type {
   NourishResponse,
   NourishDay,
@@ -576,6 +577,7 @@ export default function NourishTool() {
           </button>
         </div>
 
+        <RecommendationDisclaimer tool="nourish" />
         <CrossToolFooter currentToolId={tool.id} />
       </div>
     </div>

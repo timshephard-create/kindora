@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { nourishInputSchema } from '@/lib/validations';
+import { validateRecommendation } from '@/lib/validate-ai-output';
 import type { NourishResponse } from '@/types';
 import { z } from 'zod';
 
@@ -160,6 +161,19 @@ Requirements:
 
     try {
       const data = JSON.parse(textBlock.text) as NourishResponse;
+
+      // Validate AI output
+      const dietarySummary = dietaryStr;
+      const validation = await validateRecommendation('meal', textBlock.text, `dietary: ${dietarySummary}, budget: $${budget}, household: ${householdSize}`);
+      if (validation.flags.length > 0) {
+        try {
+          const safeguarded = JSON.parse(validation.safeguardedResponse) as NourishResponse;
+          return NextResponse.json({ data: safeguarded });
+        } catch {
+          return NextResponse.json({ data });
+        }
+      }
+
       return NextResponse.json({ data });
     } catch {
       console.error('[API /nourish] Failed to parse Claude response');

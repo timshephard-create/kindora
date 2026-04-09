@@ -10,6 +10,7 @@ import PlaceCard from '@/components/PlaceCard';
 import SavingsTiles from '@/components/SavingsTiles';
 import AIInsightBlock from '@/components/AIInsightBlock';
 import CrossToolFooter from '@/components/CrossToolFooter';
+import RecommendationDisclaimer from '@/components/RecommendationDisclaimer';
 import { calculateSavings } from '@/lib/savings-calc';
 import type { PlaceResult, SavingsBreakdown } from '@/types';
 import type { QuizQuestion } from '@/types';
@@ -317,6 +318,7 @@ export default function SproutTool() {
           </button>
         </div>
 
+        <RecommendationDisclaimer tool="sprout" />
         <CrossToolFooter currentToolId={tool.id} />
       </div>
     </div>

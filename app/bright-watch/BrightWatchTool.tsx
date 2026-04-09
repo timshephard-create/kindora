@@ -9,6 +9,7 @@ import ErrorState from '@/components/ErrorState';
 import BrightWatchCard from '@/components/BrightWatchCard';
 import AIInsightBlock from '@/components/AIInsightBlock';
 import CrossToolFooter from '@/components/CrossToolFooter';
+import RecommendationDisclaimer from '@/components/RecommendationDisclaimer';
 import type { BrightWatchResponse } from '@/types';
 import type { QuizQuestion } from '@/types';
 
@@ -226,6 +227,7 @@ export default function BrightWatchTool() {
           </button>
         </div>
 
+        <RecommendationDisclaimer tool="brightwatch" />
         <CrossToolFooter currentToolId={tool.id} />
       </div>
     </div>

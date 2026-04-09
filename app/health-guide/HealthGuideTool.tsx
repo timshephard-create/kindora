@@ -9,13 +9,17 @@ import ErrorState from '@/components/ErrorState';
 import PlanCard from '@/components/PlanCard';
 import AIInsightBlock from '@/components/AIInsightBlock';
 import CrossToolFooter from '@/components/CrossToolFooter';
+import RecommendationDisclaimer from '@/components/RecommendationDisclaimer';
+import PlanComparisonCard from '@/components/health/PlanComparisonCard';
 import { generateRecommendations } from '@/lib/healthguide-logic';
+import { calculateHealthCosts, type UserHealthInputs, type HealthCostResult } from '@/lib/health-calculations';
 import type { PlanRecommendation, HealthProfile, CMSPlanResult } from '@/types';
 import type { QuizQuestion } from '@/types';
 
 const tool = TOOLS.health;
 
 const questions: QuizQuestion[] = [
+  // Screen 1 — Profile
   {
     id: 'zip',
     type: 'text',
@@ -105,6 +109,89 @@ const questions: QuizQuestion[] = [
       { value: 'high', label: 'High \u2014 I\u2019ll gamble on lower premiums' },
     ],
   },
+  // Screen 2 — Utilization detail
+  {
+    id: 'planMembers',
+    type: 'single',
+    label: 'How many people are on this plan?',
+    autoAdvance: true,
+    options: [
+      { value: 'just_me', label: 'Just me' },
+      { value: 'me_spouse', label: 'Me + spouse' },
+      { value: 'me_kids', label: 'Me + kids' },
+      { value: 'whole_family', label: 'Whole family' },
+    ],
+  },
+  {
+    id: 'prescriptions',
+    type: 'single',
+    label: 'Any ongoing prescriptions?',
+    autoAdvance: true,
+    options: [
+      { value: 'none', label: 'None' },
+      { value: 'generic', label: 'Generic only' },
+      { value: 'brand', label: 'Brand name' },
+    ],
+  },
+  {
+    id: 'specialistVisits',
+    type: 'single',
+    label: 'Specialist visits expected this year?',
+    autoAdvance: true,
+    options: [
+      { value: 'none', label: 'None' },
+      { value: '1_3', label: '1\u20133 visits' },
+      { value: '4_8', label: '4\u20138 visits' },
+      { value: '8_plus', label: '8+' },
+    ],
+  },
+  {
+    id: 'plannedProcedures',
+    type: 'single',
+    label: 'Any planned procedures this year?',
+    autoAdvance: true,
+    options: [
+      { value: 'none', label: 'None' },
+      { value: 'pregnancy', label: 'Pregnancy / delivery' },
+      { value: 'surgery', label: 'Surgery' },
+      { value: 'dental', label: 'Major dental' },
+    ],
+  },
+  {
+    id: 'cashFlowComfort',
+    type: 'single',
+    label: 'If you got a $3,000 medical bill tomorrow, could you pay it?',
+    autoAdvance: true,
+    options: [
+      { value: 'comfortable', label: 'Yes, comfortably' },
+      { value: 'tight', label: 'Yes, but it would hurt' },
+      { value: 'no', label: 'No' },
+    ],
+  },
+  {
+    id: 'employerHsa',
+    type: 'single',
+    label: 'Does your employer offer an HSA-eligible plan?',
+    autoAdvance: true,
+    options: [
+      { value: 'yes', label: 'Yes' },
+      { value: 'no', label: 'No' },
+      { value: 'not_sure', label: 'Not sure' },
+    ],
+  },
+  {
+    id: 'incomeBracket',
+    type: 'single',
+    label: 'Rough household income bracket?',
+    helpText: 'For tax savings calculation only.',
+    autoAdvance: true,
+    options: [
+      { value: '30k_under', label: '$30k or under' },
+      { value: '31_60k', label: '$31\u2013$60k' },
+      { value: '61_100k', label: '$61\u2013$100k' },
+      { value: '101k_plus', label: '$101k+' },
+    ],
+  },
 ];
 
 const KEY_TERMS = [
@@ -136,14 +223,11 @@ function RealPlanCard({ plan }: { plan: CMSPlanResult }) {
   return (
     <div className="rounded-2xl border border-border bg-white p-5 transition-shadow hover:shadow-md">
       <div className="mb-3 flex items-center gap-3">
-        <span className={`rounded-full px-3 py-1 text-xs font-bold ${metalClass}`}>
-          {plan.metalLevel}
-        </span>
+        <span className={`rounded-full px-3 py-1 text-xs font-bold ${metalClass}`}>{plan.metalLevel}</span>
         <span className="text-xs text-mid">{plan.type}</span>
       </div>
       <h3 className="mb-1 font-heading text-lg font-bold text-charcoal">{plan.name}</h3>
       <p className="mb-3 text-xs text-mid">{plan.issuer}</p>
-
       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div>
           <p className="text-xs text-mid">Monthly</p>
@@ -156,41 +240,15 @@ function RealPlanCard({ plan }: { plan: CMSPlanResult }) {
             <p className="text-sm font-bold text-charcoal">{fmt(plan.monthlyPremium)}<span className="text-xs font-normal">/mo</span></p>
           )}
         </div>
-        <div>
-          <p className="text-xs text-mid">Deductible</p>
-          <p className="text-sm font-bold text-charcoal">{fmt(plan.annualDeductible)}</p>
-        </div>
-        <div>
-          <p className="text-xs text-mid">OOP Max</p>
-          <p className="text-sm font-bold text-charcoal">{fmt(plan.annualMoop)}</p>
-        </div>
-        {hasSubsidy && (
-          <div>
-            <p className="text-xs text-mid">Subsidy</p>
-            <p className="text-sm font-bold text-sage">Est. {fmt(plan.subsidyAmount)}/mo</p>
-          </div>
-        )}
+        <div><p className="text-xs text-mid">Deductible</p><p className="text-sm font-bold text-charcoal">{fmt(plan.annualDeductible)}</p></div>
+        <div><p className="text-xs text-mid">OOP Max</p><p className="text-sm font-bold text-charcoal">{fmt(plan.annualMoop)}</p></div>
+        {hasSubsidy && <div><p className="text-xs text-mid">Subsidy</p><p className="text-sm font-bold text-sage">Est. {fmt(plan.subsidyAmount)}/mo</p></div>}
       </div>
-
       <div className="flex gap-2">
         {plan.benefitsUrl && (
-          <a
-            href={plan.benefitsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 rounded-lg border border-border px-3 py-2 text-center text-xs font-medium text-charcoal hover:bg-cream"
-          >
-            View Plan Details &rarr;
-          </a>
+          <a href={plan.benefitsUrl} target="_blank" rel="noopener noreferrer" className="flex-1 rounded-lg border border-border px-3 py-2 text-center text-xs font-medium text-charcoal hover:bg-cream">View Plan Details &rarr;</a>
         )}
-        <a
-          href="https://www.healthcare.gov"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 rounded-lg bg-sky px-3 py-2 text-center text-xs font-medium text-white hover:bg-sky-light"
-        >
-          Enroll on Healthcare.gov &rarr;
-        </a>
+        <a href="https://www.healthcare.gov" target="_blank" rel="noopener noreferrer" className="flex-1 rounded-lg bg-sky px-3 py-2 text-center text-xs font-medium text-white hover:bg-sky-light">Enroll on Healthcare.gov &rarr;</a>
       </div>
     </div>
   );
@@ -205,11 +263,7 @@ function PlansSkeleton() {
         <div key={i} className="rounded-2xl border border-border bg-white p-5">
           <div className="mb-3 h-5 w-20 rounded bg-border/50" />
           <div className="mb-2 h-6 w-48 rounded bg-border/40" />
-          <div className="grid grid-cols-3 gap-3">
-            <div className="h-10 rounded bg-border/30" />
-            <div className="h-10 rounded bg-border/30" />
-            <div className="h-10 rounded bg-border/30" />
-          </div>
+          <div className="grid grid-cols-3 gap-3"><div className="h-10 rounded bg-border/30" /><div className="h-10 rounded bg-border/30" /><div className="h-10 rounded bg-border/30" /></div>
         </div>
       ))}
     </div>
@@ -220,6 +274,7 @@ export default function HealthGuideTool() {
   const [phase, setPhase] = useState<'quiz' | 'loading' | 'email' | 'results'>('quiz');
   const [plans, setPlans] = useState<PlanRecommendation[]>([]);
   const [realPlans, setRealPlans] = useState<CMSPlanResult[]>([]);
+  const [costResult, setCostResult] = useState<HealthCostResult | null>(null);
   const [realPlansLoading, setRealPlansLoading] = useState(true);
   const [insight, setInsight] = useState('');
   const [emailData, setEmailData] = useState<Record<string, unknown>>({});
@@ -239,6 +294,16 @@ export default function HealthGuideTool() {
         priority: answers.priority as string,
         doctorImportance: answers.doctorImportance as string,
         riskTolerance: answers.riskTolerance as string,
+      };
+
+      const healthInputs: UserHealthInputs = {
+        planMembers: (answers.planMembers as UserHealthInputs['planMembers']) || 'just_me',
+        prescriptions: (answers.prescriptions as UserHealthInputs['prescriptions']) || 'none',
+        specialistVisits: (answers.specialistVisits as UserHealthInputs['specialistVisits']) || 'none',
+        plannedProcedures: (answers.plannedProcedures as UserHealthInputs['plannedProcedures']) || 'none',
+        cashFlowComfort: (answers.cashFlowComfort as UserHealthInputs['cashFlowComfort']) || 'comfortable',
+        employerHsa: (answers.employerHsa as UserHealthInputs['employerHsa']) || 'no',
+        incomeBracket: (answers.incomeBracket as UserHealthInputs['incomeBracket']) || '31_60k',
       };
 
       const recommendations = generateRecommendations(profile);
@@ -262,21 +327,22 @@ export default function HealthGuideTool() {
         .then((data) => setInsight(data.data?.insight || ''))
         .catch(() => {});
 
-      // Fetch CMS real plans in background (only for non-employer, non-medicaid)
+      // Fetch CMS real plans + run decision engine
       const zip = answers.zip as string;
       if (zip && (profile.employerCoverage === 'none' || profile.employerCoverage === 'poor')) {
         fetch('/api/health-plans', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            zip,
-            income: profile.income,
-            householdSize: profile.householdSize,
-          }),
+          body: JSON.stringify({ zip, income: profile.income, householdSize: profile.householdSize }),
         })
           .then((r) => r.json())
           .then((data) => {
-            setRealPlans(data.data || []);
+            const fetchedPlans = (data.data || []) as CMSPlanResult[];
+            setRealPlans(fetchedPlans);
+            if (fetchedPlans.length >= 2) {
+              const result = calculateHealthCosts(fetchedPlans, healthInputs);
+              setCostResult(result);
+            }
             setRealPlansLoading(false);
           })
           .catch(() => setRealPlansLoading(false));
@@ -299,11 +365,7 @@ export default function HealthGuideTool() {
           <h1 className="mt-2 font-heading text-3xl font-bold text-charcoal">{tool.name}</h1>
           <p className="mt-1 text-sm text-mid">{tool.badge} Navigator</p>
         </div>
-        <QuizShell
-          toolColor={tool.color}
-          questions={questions}
-          onComplete={handleComplete}
-        />
+        <QuizShell toolColor={tool.color} questions={questions} onComplete={handleComplete} />
       </div>
     );
   }
@@ -311,14 +373,7 @@ export default function HealthGuideTool() {
   if (phase === 'loading') {
     return (
       <div className="min-h-screen bg-cream">
-        <LoadingState
-          color="sky"
-          messages={[
-            'Analyzing your coverage options...',
-            'Looking up plans in your area...',
-            'Preparing your recommendations...',
-          ]}
-        />
+        <LoadingState color="sky" messages={['Analyzing your coverage options...', 'Running cost scenarios...', 'Looking up plans in your area...', 'Preparing your recommendations...']} />
       </div>
     );
   }
@@ -326,10 +381,7 @@ export default function HealthGuideTool() {
   if (error || plans.length === 0) {
     return (
       <div className="min-h-screen bg-cream">
-        <ErrorState
-          message="We couldn't generate your recommendations. Please try again."
-          onRetry={() => setPhase('quiz')}
-        />
+        <ErrorState message="We couldn't generate your recommendations. Please try again." onRetry={() => setPhase('quiz')} />
       </div>
     );
   }
@@ -341,18 +393,19 @@ export default function HealthGuideTool() {
       )}
 
       <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12">
-        <h1 className="mb-2 font-heading text-3xl font-bold text-charcoal sm:text-4xl">
-          Your Plan Recommendations
-        </h1>
-        <p className="mb-8 text-sm text-mid">
-          Based on your profile, here are your best options.
-        </p>
+        <h1 className="mb-2 font-heading text-3xl font-bold text-charcoal sm:text-4xl">Your Plan Analysis</h1>
+        <p className="mb-8 text-sm text-mid">Based on your profile, here are your best options.</p>
 
         {/* AI Insight */}
-        {insight && (
-          <div className="mb-8">
-            <AIInsightBlock insight={insight} color="sky" />
-          </div>
+        {insight && <div className="mb-8"><AIInsightBlock insight={insight} color="sky" /></div>}
+
+        {/* Decision Engine Comparison */}
+        {costResult && (
+          <section className="mb-10">
+            <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">Cost Comparison</h2>
+            <p className="mb-4 text-sm text-mid">Based on your expected healthcare usage, prescriptions, and procedures.</p>
+            <PlanComparisonCard recommendation={costResult.recommendation} hsaAnalysis={costResult.hsaAnalysis} />
+          </section>
         )}
 
         {/* Real CMS Plans */}
@@ -360,41 +413,26 @@ export default function HealthGuideTool() {
           <PlansSkeleton />
         ) : realPlans.length > 0 ? (
           <section className="mb-10">
-            <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">
-              Plans Available in Your Area
-            </h2>
-            <p className="mb-4 text-sm text-mid">
-              Real plans from Healthcare.gov &mdash; updated for {new Date().getFullYear()}
-            </p>
+            <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">Plans Available in Your Area</h2>
+            <p className="mb-4 text-sm text-mid">Real plans from Healthcare.gov &mdash; updated for {new Date().getFullYear()}</p>
             <div className="space-y-4">
-              {realPlans.map((plan) => (
-                <RealPlanCard key={plan.id} plan={plan} />
-              ))}
+              {realPlans.map((plan) => <RealPlanCard key={plan.id} plan={plan} />)}
             </div>
             <p className="mt-3 text-xs leading-relaxed text-mid">
-              Plan data from the Federal Health Insurance Marketplace. Premiums shown are estimates &mdash;
-              actual costs depend on your specific household and enrollment details. Always verify on Healthcare.gov before enrolling.
+              Plan data from the Federal Health Insurance Marketplace. Premiums shown are estimates &mdash; actual costs depend on your specific household and enrollment details. Always verify on Healthcare.gov before enrolling.
             </p>
           </section>
         ) : null}
 
         {/* Our Recommendation (deterministic) */}
         <section>
-          <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">
-            Our Recommendation
-          </h2>
-          <div className="space-y-6">
-            {plans.map((plan, i) => (
-              <PlanCard key={i} plan={plan} />
-            ))}
-          </div>
+          <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">Our Recommendation</h2>
+          <div className="space-y-6">{plans.map((plan, i) => <PlanCard key={i} plan={plan} />)}</div>
         </section>
 
         {/* Key Terms */}
         <section className="mt-12">
-          <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">
-            Key Terms Glossary
-          </h2>
+          <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">Key Terms Glossary</h2>
           <div className="space-y-3">
             {KEY_TERMS.map((item) => (
               <div key={item.term} className="rounded-xl border border-border bg-white p-4">
@@ -407,73 +445,23 @@ export default function HealthGuideTool() {
 
         {/* Action Strip */}
         <section className="mt-8 rounded-2xl bg-charcoal p-6 sm:p-8">
-          <h2 className="mb-4 font-heading text-xl font-bold text-white">
-            Ready to take action?
-          </h2>
+          <h2 className="mb-4 font-heading text-xl font-bold text-white">Ready to take action?</h2>
           <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-            <a
-              href="https://www.healthcare.gov"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-xl bg-sky px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-sky-light"
-            >
-              Browse ACA Plans &rarr;
-            </a>
-            <a
-              href="https://www.medicaid.gov/about-us/beneficiary-resources/index.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-xl bg-white/10 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/20"
-            >
-              Check Medicaid Eligibility
-            </a>
-            <a
-              href="https://www.policygenius.com" // TODO: replace with affiliate URL
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-xl bg-white/10 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/20"
-            >
-              Talk to a Free Broker
-            </a>
+            <a href="https://www.healthcare.gov" target="_blank" rel="noopener noreferrer" className="rounded-xl bg-sky px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-sky-light">Browse ACA Plans &rarr;</a>
+            <a href="https://www.medicaid.gov/about-us/beneficiary-resources/index.html" target="_blank" rel="noopener noreferrer" className="rounded-xl bg-white/10 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/20">Check Medicaid Eligibility</a>
+            <a href="https://www.policygenius.com" target="_blank" rel="noopener noreferrer" className="rounded-xl bg-white/10 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/20">Talk to a Free Broker</a>
           </div>
         </section>
-
-        {/* Disclaimer */}
-        <p className="mt-6 rounded-xl border border-border bg-white p-4 text-xs leading-relaxed text-mid">
-          <strong>Disclaimer:</strong> This tool provides educational guidance only and
-          does not constitute licensed insurance advice. Plan availability, premiums,
-          and subsidies vary by state and are subject to change. Always verify details
-          at Healthcare.gov or with a licensed insurance broker before making enrollment decisions.
-        </p>
 
         {/* Premium hook */}
         <div className="mt-8 rounded-2xl border-2 border-dashed border-border bg-white/50 p-6 text-center opacity-60">
           <span className="text-2xl">&#128274;</span>
-          <p className="mt-2 font-heading text-lg font-bold text-charcoal">
-            Get your full {tool.premiumLabel}
-          </p>
-          <p className="mt-1 text-sm text-mid">
-            Unlock with {tool.name} Premium
-          </p>
-          <button
-            onClick={() => {
-              fetch('/api/leads', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  name: '',
-                  email: 'interest@placeholder.com',
-                  tool: 'premium_interest',
-                  profileSummary: 'HealthGuide premium interest',
-                }),
-              }).catch(() => {});
-            }}
-            className="mt-3 rounded-lg bg-border px-4 py-2 text-xs font-medium text-mid"
-          >
-            Coming soon
-          </button>
+          <p className="mt-2 font-heading text-lg font-bold text-charcoal">Get your full {tool.premiumLabel}</p>
+          <p className="mt-1 text-sm text-mid">Unlock with {tool.name} Premium</p>
+          <button onClick={() => { fetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: '', email: 'interest@placeholder.com', tool: 'premium_interest', profileSummary: 'HealthGuide premium interest' }) }).catch(() => {}); }} className="mt-3 rounded-lg bg-border px-4 py-2 text-xs font-medium text-mid">Coming soon</button>
         </div>
 
+        <RecommendationDisclaimer tool="health" />
         <CrossToolFooter currentToolId={tool.id} />
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { brightwatchInputSchema } from '@/lib/validations';
+import { validateRecommendation } from '@/lib/validate-ai-output';
 import type { BrightWatchResponse } from '@/types';
 
 const anthropic = new Anthropic({
@@ -123,6 +124,18 @@ For each recommendation, if you have any uncertainty about whether this content 
 
     try {
       const parsed = JSON.parse(textBlock.text) as BrightWatchResponse;
+
+      // Validate AI output
+      const validation = await validateRecommendation('media', textBlock.text, `age: ${age}, context: ${context}, medium: ${medium}`);
+      if (validation.flags.length > 0) {
+        try {
+          const safeguarded = JSON.parse(validation.safeguardedResponse) as BrightWatchResponse;
+          return NextResponse.json({ data: safeguarded });
+        } catch {
+          return NextResponse.json({ data: parsed });
+        }
+      }
+
       return NextResponse.json({ data: parsed });
     } catch {
       return NextResponse.json({ data: buildFallback(age, context, medium) });

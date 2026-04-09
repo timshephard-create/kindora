@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { insightInputSchema } from '@/lib/validations';
+import { validateRecommendation } from '@/lib/validate-ai-output';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
@@ -61,7 +62,13 @@ export async function POST(request: NextRequest) {
     });
 
     const textBlock = message.content.find((b) => b.type === 'text');
-    const insight = textBlock ? textBlock.text : FALLBACK_INSIGHTS[tool] || '';
+    let insight = textBlock ? textBlock.text : FALLBACK_INSIGHTS[tool] || '';
+
+    // Validate AI output
+    const validation = await validateRecommendation(tool, insight, JSON.stringify(profile).slice(0, 300));
+    if (validation.flags.length > 0) {
+      insight = validation.safeguardedResponse;
+    }
 
     return NextResponse.json({ data: { insight } });
   } catch (err) {
