@@ -772,6 +772,16 @@ export default function HealthGuideTool() {
     quizAnswers.priority === 'want_hsa' ||
     costResult?.recommendation?.winner?.plan?.name?.toLowerCase().includes('hsa');
 
+  // Coverage gap: Texas ZIP + low income family — marketplace subsidy recommendation contradicts gap reality
+  const zip = quizAnswers.zip as string || '';
+  const txPrefix = parseInt(zip.slice(0, 3) || '0', 10);
+  const isTexasZipResult = txPrefix >= 750 && txPrefix <= 799;
+  const householdStr = quizAnswers.householdSize as string;
+  const isFamilyResult = householdStr === 'family_3_4' || householdStr === 'family_5_plus' || householdStr === 'me_partner';
+  const incomeVal = quizAnswers.income as number;
+  const isCoverageGap = isFamilyResult && incomeVal < 31000 && isTexasZipResult;
+  const hasKidsResult = quizAnswers.hasChildren === 'yes';
+
   return (
     <div className="min-h-screen bg-cream">
       {phase === 'email' && (
@@ -797,25 +807,79 @@ export default function HealthGuideTool() {
           </section>
         )}
 
-        {/* Real CMS Plans */}
-        {realPlansLoading ? (
-          <PlansSkeleton />
-        ) : realPlans.length > 0 ? (
-          <section className="mb-10">
-            <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">Plans Available in Your Area</h2>
-            <p className="mb-4 text-sm text-mid">Real plans from Healthcare.gov &mdash; updated for {new Date().getFullYear()}</p>
-            <div className="space-y-4">{realPlans.map((plan) => <RealPlanCard key={plan.id} plan={plan} />)}</div>
-            <p className="mt-3 text-xs leading-relaxed text-mid">
-              Plan data from the Federal Health Insurance Marketplace. Premiums shown are estimates. Always verify on Healthcare.gov before enrolling.
-            </p>
-          </section>
-        ) : null}
+        {/* Coverage gap path — replace normal recommendations */}
+        {isCoverageGap ? (
+          <>
+            {/* Best path for coverage gap families */}
+            <section className="mb-10">
+              <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">Your best path right now</h2>
+              <div className="space-y-4">
+                {hasKidsResult && (
+                  <div className="rounded-2xl border-2 border-sage bg-sage-pale p-5">
+                    <div className="mb-2 flex items-center gap-2">
+                      <span className="rounded-full bg-sage px-3 py-1 text-xs font-bold text-white">Step 1</span>
+                      <h3 className="font-heading text-base font-bold text-charcoal">CHIP for your children</h3>
+                    </div>
+                    <p className="mb-3 text-sm leading-relaxed text-charcoal">
+                      Your children likely qualify for CHIP regardless of your own coverage situation. CHIP provides comprehensive pediatric coverage &mdash; often free or very low cost &mdash; including doctor visits, prescriptions, dental, and vision.
+                    </p>
+                    <a href="https://www.hhs.texas.gov/services/health/medicaid-chip" target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-sage px-4 py-2 text-xs font-semibold text-white hover:bg-sage-light">Check CHIP eligibility &rarr;</a>
+                  </div>
+                )}
 
-        {/* Our Recommendation (deterministic) */}
-        <section>
-          <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">Our Recommendation</h2>
-          <div className="space-y-6">{plans.map((plan, i) => <PlanCard key={i} plan={plan} />)}</div>
-        </section>
+                <div className="rounded-2xl border-2 border-sky bg-sky-pale p-5">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="rounded-full bg-sky px-3 py-1 text-xs font-bold text-white">{hasKidsResult ? 'Step 2' : 'Step 1'}</span>
+                    <h3 className="font-heading text-base font-bold text-charcoal">Federally Qualified Health Centers for adults</h3>
+                  </div>
+                  <p className="mb-3 text-sm leading-relaxed text-charcoal">
+                    FQHCs offer primary care, dental, mental health, and prescriptions on a sliding scale based on your income. They serve everyone &mdash; insured or uninsured &mdash; and are available in most Texas counties.
+                  </p>
+                  <a href="https://findahealthcenter.hrsa.gov" target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-sky px-4 py-2 text-xs font-semibold text-white hover:bg-sky-light">Find an FQHC near you &rarr;</a>
+                </div>
+
+                <div className="rounded-xl border border-border bg-white p-5">
+                  <p className="text-sm leading-relaxed text-charcoal">
+                    <strong>If your income changes:</strong> If your household income rises above approximately $31,000 for a family of 4, you become eligible for meaningful ACA Marketplace subsidies that can make insurance surprisingly affordable. The plans below show what would be available at that point.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* CMS Plans shown as future reference */}
+            {realPlansLoading ? (
+              <PlansSkeleton />
+            ) : realPlans.length > 0 ? (
+              <section className="mb-10 opacity-80">
+                <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">If your income changes</h2>
+                <p className="mb-4 text-sm text-mid">These plans become available with subsidies if your income rises above the coverage gap threshold.</p>
+                <div className="space-y-4">{realPlans.map((plan) => <RealPlanCard key={plan.id} plan={plan} />)}</div>
+              </section>
+            ) : null}
+          </>
+        ) : (
+          <>
+            {/* Normal path — Real CMS Plans */}
+            {realPlansLoading ? (
+              <PlansSkeleton />
+            ) : realPlans.length > 0 ? (
+              <section className="mb-10">
+                <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">Plans Available in Your Area</h2>
+                <p className="mb-4 text-sm text-mid">Real plans from Healthcare.gov &mdash; updated for {new Date().getFullYear()}</p>
+                <div className="space-y-4">{realPlans.map((plan) => <RealPlanCard key={plan.id} plan={plan} />)}</div>
+                <p className="mt-3 text-xs leading-relaxed text-mid">
+                  Plan data from the Federal Health Insurance Marketplace. Premiums shown are estimates. Always verify on Healthcare.gov before enrolling.
+                </p>
+              </section>
+            ) : null}
+
+            {/* Our Recommendation (deterministic) */}
+            <section>
+              <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">Our Recommendation</h2>
+              <div className="space-y-6">{plans.map((plan, i) => <PlanCard key={i} plan={plan} />)}</div>
+            </section>
+          </>
+        )}
 
         {/* Part 3 — Cash Pay (HDHP/HSA or tight cash flow) */}
         {showCashPay && costResult && <CashPaySection costResult={costResult} />}
