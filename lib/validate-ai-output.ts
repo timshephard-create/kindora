@@ -58,7 +58,7 @@ async function logToAirtable(
           Confidence: confidence,
           WasOverridden: wasOverridden,
           InputSummary: inputSummary.slice(0, 500),
-          Timestamp: new Date().toISOString(),
+          Timestamp: new Date().toISOString().split('T')[0],
         },
       }],
     };

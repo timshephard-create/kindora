@@ -22,7 +22,7 @@ export async function GET() {
         Confidence: 'high',
         WasOverridden: false,
         InputSummary: 'Test record — safe to delete',
-        Timestamp: new Date().toISOString(),
+        Timestamp: new Date().toISOString().split('T')[0],
       },
     }],
   };
