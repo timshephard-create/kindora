@@ -1,84 +1,90 @@
 import { test, expect } from '@playwright/test';
 import {
-  selectOption,
+  selectAutoAdvance,
   fillTextAndContinue,
   setSliderAndContinue,
   selectMultiAndContinue,
   dismissEmailCapture,
   waitForResults,
+  assertNoError,
 } from './helpers';
 
 test.describe('Nourish', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/nourish');
-  });
+  test.setTimeout(90000); // Nourish needs Claude + Places calls
 
   test('Profile 1 — Nut allergy family', async ({ page }) => {
+    await page.goto('/nourish');
+    await page.waitForSelector('h2', { timeout: 10000 });
+
     // Q1: householdSize (auto-advance)
-    await selectOption(page, 'Family of 3–4');
-    // Q2: budget slider
-    await setSliderAndContinue(page, 200);
+    await selectAutoAdvance(page, 'How many people', 'Family of 3');
+    // Q2: budget (slider + continue)
+    await setSliderAndContinue(page, 'weekly grocery budget', 200);
     // Q3: dietary (multi-select + continue)
-    await selectMultiAndContinue(page, ['Nut allergy']);
+    await selectMultiAndContinue(page, 'dietary preferences', ['Nut allergy']);
     // Q4: cookingTime (auto-advance)
-    await selectOption(page, 'Moderate — up to 45 minutes');
-    // Q5: zip
-    await fillTextAndContinue(page, '76009');
+    await selectAutoAdvance(page, 'time do you have to cook', 'Moderate');
+    // Q5: zip (text + continue)
+    await fillTextAndContinue(page, 'ZIP code', '76009');
 
     await dismissEmailCapture(page);
-    await waitForResults(page);
+    await waitForResults(page, 60000);
 
-    // 7-day meal plan visible
     await expect(page.locator('[data-testid="results-container"]')).toBeVisible();
     await expect(page.getByText('Monday')).toBeVisible();
-    // Disclaimer visible
     await expect(page.locator('[data-testid="disclaimer"]')).toBeVisible();
-    // No error
-    await expect(page.getByText('Oops')).not.toBeVisible();
+    await assertNoError(page);
   });
 
   test('Profile 2 — Vegan family', async ({ page }) => {
-    await selectOption(page, 'Family of 3–4');
-    await setSliderAndContinue(page, 125);
-    await selectMultiAndContinue(page, ['Vegan']);
-    await selectOption(page, 'Minimal — 15–20 min meals only');
-    await fillTextAndContinue(page, '76009');
+    await page.goto('/nourish');
+    await page.waitForSelector('h2', { timeout: 10000 });
+
+    await selectAutoAdvance(page, 'How many people', 'Family of 3');
+    await setSliderAndContinue(page, 'weekly grocery budget', 125);
+    await selectMultiAndContinue(page, 'dietary preferences', ['Vegan']);
+    await selectAutoAdvance(page, 'time do you have to cook', 'Minimal');
+    await fillTextAndContinue(page, 'ZIP code', '76009');
 
     await dismissEmailCapture(page);
-    await waitForResults(page);
+    await waitForResults(page, 60000);
 
     await expect(page.locator('[data-testid="results-container"]')).toBeVisible();
-    await expect(page.getByText('Oops')).not.toBeVisible();
+    await assertNoError(page);
   });
 
   test('Profile 3 — Multiple restrictions', async ({ page }) => {
-    await selectOption(page, 'Family of 3–4');
-    await setSliderAndContinue(page, 200);
-    await selectMultiAndContinue(page, ['Gluten-free', 'Dairy-free']);
-    await selectOption(page, 'Moderate — up to 45 minutes');
-    await fillTextAndContinue(page, '76009');
+    await page.goto('/nourish');
+    await page.waitForSelector('h2', { timeout: 10000 });
+
+    await selectAutoAdvance(page, 'How many people', 'Family of 3');
+    await setSliderAndContinue(page, 'weekly grocery budget', 200);
+    await selectMultiAndContinue(page, 'dietary preferences', ['Gluten-free', 'Dairy-free']);
+    await selectAutoAdvance(page, 'time do you have to cook', 'Moderate');
+    await fillTextAndContinue(page, 'ZIP code', '76009');
 
     await dismissEmailCapture(page);
-    await waitForResults(page);
+    await waitForResults(page, 60000);
 
-    // Plan generates without error
     await expect(page.locator('[data-testid="results-container"]')).toBeVisible();
     await expect(page.getByText('Monday')).toBeVisible();
   });
 
   test('Profile 4 — Large family, tight budget', async ({ page }) => {
-    await selectOption(page, 'Family of 5+');
-    await setSliderAndContinue(page, 100);
-    await selectMultiAndContinue(page, ['No restrictions']);
-    await selectOption(page, 'Batch cooking — I prep once for the week');
-    await fillTextAndContinue(page, '76009');
+    await page.goto('/nourish');
+    await page.waitForSelector('h2', { timeout: 10000 });
+
+    await selectAutoAdvance(page, 'How many people', 'Family of 5');
+    await setSliderAndContinue(page, 'weekly grocery budget', 100);
+    await selectMultiAndContinue(page, 'dietary preferences', ['No restrictions']);
+    await selectAutoAdvance(page, 'time do you have to cook', 'Batch cooking');
+    await fillTextAndContinue(page, 'ZIP code', '76009');
 
     await dismissEmailCapture(page);
-    await waitForResults(page);
+    await waitForResults(page, 60000);
 
     await expect(page.locator('[data-testid="results-container"]')).toBeVisible();
-    // Shopping list present
     await expect(page.getByText('Shopping List')).toBeVisible();
-    await expect(page.getByText('Oops')).not.toBeVisible();
+    await assertNoError(page);
   });
 });
