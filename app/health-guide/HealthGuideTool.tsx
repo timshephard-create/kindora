@@ -18,8 +18,60 @@ import type { QuizQuestion } from '@/types';
 
 const tool = TOOLS.health;
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// QUIZ QUESTIONS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const questions: QuizQuestion[] = [
-  // Screen 1 — Profile
+  // --- Pre-triage (Part 1) ---
+  {
+    id: 'coverageReason',
+    type: 'single',
+    label: 'Why are you looking for coverage?',
+    helpText: 'This helps us route you to the right options.',
+    autoAdvance: true,
+    options: [
+      { value: 'lost_job', label: 'I recently lost job-based coverage' },
+      { value: 'too_expensive', label: 'My current plan is too expensive' },
+      { value: 'never_had', label: "I've never had insurance" },
+      { value: 'life_change', label: 'Life change (marriage, baby, moved states)' },
+      { value: 'self_employed', label: "I'm self-employed or a freelancer" },
+      { value: 'exploring', label: 'Just exploring my options' },
+    ],
+  },
+  {
+    id: 'hasChildren',
+    type: 'single',
+    label: 'Are there children under 19 in your household?',
+    autoAdvance: true,
+    options: [
+      { value: 'yes', label: 'Yes' },
+      { value: 'no', label: 'No' },
+    ],
+  },
+  {
+    id: 'daysSinceLostCoverage',
+    type: 'single',
+    label: 'How long ago did you lose coverage?',
+    autoAdvance: true,
+    options: [
+      { value: 'under_30', label: 'Less than 30 days ago' },
+      { value: '30_60', label: '30\u201360 days ago' },
+      { value: 'over_60', label: 'More than 60 days ago' },
+    ],
+  },
+  {
+    id: 'faithCommunityMember',
+    type: 'single',
+    label: 'Are you a member of a faith community?',
+    helpText: 'This determines if health sharing options are relevant for you.',
+    autoAdvance: true,
+    options: [
+      { value: 'yes', label: 'Yes' },
+      { value: 'no', label: 'No' },
+    ],
+  },
+  // --- Existing profile questions ---
   {
     id: 'zip',
     type: 'text',
@@ -109,7 +161,7 @@ const questions: QuizQuestion[] = [
       { value: 'high', label: 'High \u2014 I\u2019ll gamble on lower premiums' },
     ],
   },
-  // Screen 2 — Utilization detail
+  // --- Utilization detail ---
   {
     id: 'planMembers',
     type: 'single',
@@ -204,22 +256,22 @@ const KEY_TERMS = [
   { term: 'Network', definition: 'The group of doctors, hospitals, and pharmacies your plan has agreements with for lower rates.' },
 ];
 
-const METAL_COLORS: Record<string, string> = {
-  Bronze: 'bg-[#CD7F32] text-white',
-  Silver: 'bg-[#C0C0C0] text-charcoal',
-  Gold: 'bg-[#FFD700] text-charcoal',
-  Platinum: 'bg-[#E5E4E2] text-charcoal',
-  Catastrophic: 'bg-mid text-white',
-};
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SUB-COMPONENTS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function fmt(n: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
 }
 
+const METAL_COLORS: Record<string, string> = {
+  Bronze: 'bg-[#CD7F32] text-white', Silver: 'bg-[#C0C0C0] text-charcoal',
+  Gold: 'bg-[#FFD700] text-charcoal', Platinum: 'bg-[#E5E4E2] text-charcoal', Catastrophic: 'bg-mid text-white',
+};
+
 function RealPlanCard({ plan }: { plan: CMSPlanResult }) {
   const hasSubsidy = plan.subsidyAmount > 0 && plan.monthlyWithSubsidy < plan.monthlyPremium;
   const metalClass = METAL_COLORS[plan.metalLevel] || METAL_COLORS.Bronze;
-
   return (
     <div className="rounded-2xl border border-border bg-white p-5 transition-shadow hover:shadow-md">
       <div className="mb-3 flex items-center gap-3">
@@ -229,25 +281,13 @@ function RealPlanCard({ plan }: { plan: CMSPlanResult }) {
       <h3 className="mb-1 font-heading text-lg font-bold text-charcoal">{plan.name}</h3>
       <p className="mb-3 text-xs text-mid">{plan.issuer}</p>
       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div>
-          <p className="text-xs text-mid">Monthly</p>
-          {hasSubsidy ? (
-            <>
-              <p className="text-sm font-bold text-sky">{fmt(plan.monthlyWithSubsidy)}<span className="text-xs font-normal">/mo</span></p>
-              <p className="text-xs text-mid line-through">{fmt(plan.monthlyPremium)}/mo</p>
-            </>
-          ) : (
-            <p className="text-sm font-bold text-charcoal">{fmt(plan.monthlyPremium)}<span className="text-xs font-normal">/mo</span></p>
-          )}
-        </div>
+        <div><p className="text-xs text-mid">Monthly</p>{hasSubsidy ? (<><p className="text-sm font-bold text-sky">{fmt(plan.monthlyWithSubsidy)}<span className="text-xs font-normal">/mo</span></p><p className="text-xs text-mid line-through">{fmt(plan.monthlyPremium)}/mo</p></>) : (<p className="text-sm font-bold text-charcoal">{fmt(plan.monthlyPremium)}<span className="text-xs font-normal">/mo</span></p>)}</div>
         <div><p className="text-xs text-mid">Deductible</p><p className="text-sm font-bold text-charcoal">{fmt(plan.annualDeductible)}</p></div>
         <div><p className="text-xs text-mid">OOP Max</p><p className="text-sm font-bold text-charcoal">{fmt(plan.annualMoop)}</p></div>
         {hasSubsidy && <div><p className="text-xs text-mid">Subsidy</p><p className="text-sm font-bold text-sage">Est. {fmt(plan.subsidyAmount)}/mo</p></div>}
       </div>
       <div className="flex gap-2">
-        {plan.benefitsUrl && (
-          <a href={plan.benefitsUrl} target="_blank" rel="noopener noreferrer" className="flex-1 rounded-lg border border-border px-3 py-2 text-center text-xs font-medium text-charcoal hover:bg-cream">View Plan Details &rarr;</a>
-        )}
+        {plan.benefitsUrl && <a href={plan.benefitsUrl} target="_blank" rel="noopener noreferrer" className="flex-1 rounded-lg border border-border px-3 py-2 text-center text-xs font-medium text-charcoal hover:bg-cream">View Plan Details &rarr;</a>}
         <a href="https://www.healthcare.gov" target="_blank" rel="noopener noreferrer" className="flex-1 rounded-lg bg-sky px-3 py-2 text-center text-xs font-medium text-white hover:bg-sky-light">Enroll on Healthcare.gov &rarr;</a>
       </div>
     </div>
@@ -255,20 +295,301 @@ function RealPlanCard({ plan }: { plan: CMSPlanResult }) {
 }
 
 function PlansSkeleton() {
+  return (<div className="mb-8 animate-pulse space-y-4"><div className="h-7 w-56 rounded bg-border/50" /><div className="h-4 w-72 rounded bg-border/30" />{[1, 2, 3].map((i) => (<div key={i} className="rounded-2xl border border-border bg-white p-5"><div className="mb-3 h-5 w-20 rounded bg-border/50" /><div className="mb-2 h-6 w-48 rounded bg-border/40" /><div className="grid grid-cols-3 gap-3"><div className="h-10 rounded bg-border/30" /><div className="h-10 rounded bg-border/30" /><div className="h-10 rounded bg-border/30" /></div></div>))}</div>);
+}
+
+function OptionCard({ title, bestFor, pros, cons, ctaLabel, ctaUrl, note }: {
+  title: string; bestFor: string; pros: string[]; cons?: string[]; ctaLabel: string; ctaUrl: string; note?: string;
+}) {
   return (
-    <div className="mb-8 animate-pulse space-y-4">
-      <div className="h-7 w-56 rounded bg-border/50" />
-      <div className="h-4 w-72 rounded bg-border/30" />
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="rounded-2xl border border-border bg-white p-5">
-          <div className="mb-3 h-5 w-20 rounded bg-border/50" />
-          <div className="mb-2 h-6 w-48 rounded bg-border/40" />
-          <div className="grid grid-cols-3 gap-3"><div className="h-10 rounded bg-border/30" /><div className="h-10 rounded bg-border/30" /><div className="h-10 rounded bg-border/30" /></div>
-        </div>
-      ))}
+    <div className="rounded-2xl border border-border bg-white p-5">
+      <h3 className="mb-1 font-heading text-base font-bold text-charcoal">{title}</h3>
+      <p className="mb-3 text-xs italic text-mid">{bestFor}</p>
+      <ul className="mb-2 space-y-1">{pros.map((p, i) => <li key={i} className="flex items-start gap-2 text-xs text-charcoal"><span className="mt-0.5 text-sage">&#10003;</span>{p}</li>)}</ul>
+      {cons && cons.length > 0 && <ul className="mb-3 space-y-1">{cons.map((c, i) => <li key={i} className="flex items-start gap-2 text-xs text-mid"><span className="mt-0.5 text-gold-dark">&#9888;</span>{c}</li>)}</ul>}
+      {note && <p className="mb-3 text-xs text-mid">{note}</p>}
+      <a href={ctaUrl} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-sky px-4 py-2 text-xs font-semibold text-white hover:bg-sky-light">{ctaLabel} &rarr;</a>
     </div>
   );
 }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ROUTING CARDS (Part 1)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function RoutingCards({ answers }: { answers: Record<string, string | string[] | number> }) {
+  const hasKids = answers.hasChildren === 'yes';
+  const reason = answers.coverageReason as string;
+  const daysSince = answers.daysSinceLostCoverage as string;
+  const income = answers.income as number;
+  const householdSize = answers.householdSize as string;
+  const isFamily = householdSize === 'family_3_4' || householdSize === 'family_5_plus';
+  const showCobra = reason === 'lost_job' && (daysSince === 'under_30' || daysSince === '30_60');
+  const showCoverageGap = isFamily && income < 31000;
+  const showChip = hasKids && income < 60000;
+
+  if (!showChip && !showCobra && !showCoverageGap) return null;
+
+  return (
+    <div className="mb-8 space-y-4">
+      <h2 className="font-heading text-xl font-bold text-charcoal">Important for your situation</h2>
+
+      {showChip && (
+        <div className="rounded-2xl border-2 border-sage bg-sage-pale p-5">
+          <h3 className="mb-2 font-heading text-base font-bold text-sage">Your kids may qualify for CHIP</h3>
+          <p className="mb-3 text-sm leading-relaxed text-charcoal">
+            In Texas, families earning up to about $60,000 for a family of 4 may qualify for free or low-cost coverage for their children through the Children&apos;s Health Insurance Program, regardless of your own insurance situation. We recommend checking CHIP eligibility first &mdash; it&apos;s often free.
+          </p>
+          <a href="https://www.hhs.texas.gov/services/health/medicaid-chip" target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-sage px-4 py-2 text-xs font-semibold text-white hover:bg-sage-light">Check CHIP eligibility in Texas &rarr;</a>
+          <p className="mt-3 text-xs text-mid">Your kids&apos; coverage may be sorted. Let&apos;s now find the best option for the adults.</p>
+        </div>
+      )}
+
+      {showCobra && (
+        <div className="rounded-2xl border-2 border-gold bg-gold-pale p-5">
+          <h3 className="mb-2 font-heading text-base font-bold text-gold-dark">You have a COBRA decision to make</h3>
+          <p className="mb-2 text-sm leading-relaxed text-charcoal">
+            When you lose employer coverage, you have 60 days to elect COBRA &mdash; which lets you keep your exact same plan and doctors. After 60 days, that window closes permanently.
+          </p>
+          <div className="mb-2 text-xs text-charcoal">
+            <p className="font-semibold">COBRA keeps:</p>
+            <p>Your doctors, your network, your deductible progress</p>
+            <p className="mt-1 font-semibold">COBRA costs:</p>
+            <p>Full premium (often $500&ndash;$1,500/month for a family) plus a 2% admin fee</p>
+          </div>
+          <p className="text-xs text-mid">Marketplace plans may cost less (especially with subsidies) but you start fresh with a new network. We&apos;ll show you both options so you can compare.</p>
+        </div>
+      )}
+
+      {showCoverageGap && (
+        <div className="rounded-2xl border-2 border-[#B85C3A] bg-[#FDF0EC] p-5">
+          <h3 className="mb-2 font-heading text-base font-bold text-[#B85C3A]">Texas coverage gap &mdash; know your options</h3>
+          <p className="mb-2 text-sm leading-relaxed text-charcoal">
+            Texas has not expanded Medicaid under the ACA. If your household income is below about $31,000 for a family of 4, you may fall into the &ldquo;coverage gap&rdquo; &mdash; earning too much for traditional Medicaid but too little for meaningful marketplace subsidies.
+          </p>
+          <p className="mb-2 text-xs font-semibold text-charcoal">If you&apos;re in this gap, here are your real options:</p>
+          <ul className="mb-3 space-y-1 text-xs text-charcoal">
+            <li>&#8226; Federally Qualified Health Centers (FQHCs) &mdash; sliding scale fees based on income</li>
+            <li>&#8226; Your children likely qualify for CHIP regardless</li>
+            <li>&#8226; Community health programs through your county</li>
+            <li>&#8226; Short-term health plans as a bridge (limited coverage, not ACA-compliant)</li>
+          </ul>
+          <a href="https://findahealthcenter.hrsa.gov" target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#B85C3A] px-4 py-2 text-xs font-semibold text-white hover:opacity-90">Find an FQHC near you &rarr;</a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ALL YOUR OPTIONS (Part 2 + 5)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function AllOptionsSection({ answers }: { answers: Record<string, string | string[] | number> }) {
+  const employer = answers.employerCoverage as string;
+  const hasKids = answers.hasChildren === 'yes';
+  const reason = answers.coverageReason as string;
+  const daysSince = answers.daysSinceLostCoverage as string;
+  const usage = answers.healthUsage as string;
+  const priority = answers.priority as string;
+  const income = answers.income as number;
+  const faith = answers.faithCommunityMember === 'yes';
+  const showCobra = reason === 'lost_job' && (daysSince === 'under_30' || daysSince === '30_60');
+  const isHdhp = priority === 'want_hsa' || usage === 'minimal';
+  const aboveSubsidy = income > 100000;
+  const hasMixedHousehold = (answers.planMembers === 'me_spouse' || answers.planMembers === 'whole_family' || answers.planMembers === 'me_kids');
+
+  return (
+    <section className="mt-10">
+      <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">All Your Options</h2>
+      <div className="space-y-4">
+        {employer !== 'good' && (
+          <OptionCard title="ACA Marketplace Plans" bestFor="Best for: Most uninsured families"
+            pros={['Subsidies can dramatically reduce cost', 'Comprehensive ACA coverage', 'Guaranteed coverage regardless of pre-existing conditions']}
+            cons={['Network may differ from current doctors']}
+            ctaLabel="Browse plans on Healthcare.gov" ctaUrl="https://www.healthcare.gov" />
+        )}
+
+        {hasKids && (
+          <OptionCard title="CHIP (Children's Health Insurance Program)" bestFor="Best for: Kids in families who don't qualify for Medicaid"
+            pros={['Often free or very low cost', 'Comprehensive pediatric coverage', "Separate from adult coverage \u2014 kids can have CHIP while parents use marketplace"]}
+            cons={['Income limits apply']}
+            ctaLabel="Check Texas CHIP eligibility" ctaUrl="https://www.hhs.texas.gov/services/health/medicaid-chip" />
+        )}
+
+        {showCobra && (
+          <OptionCard title="COBRA Continuation Coverage" bestFor="Best for: Families mid-treatment or with preferred doctors"
+            pros={['Keep exact same plan and doctors', 'Keep deductible progress from current year']}
+            cons={['You pay full premium + 2% fee', 'Usually $800\u2013$2,000/month for families', 'Only available for 18 months']}
+            ctaLabel="Contact your HR department" ctaUrl="https://www.dol.gov/general/topic/health-plans/cobra" />
+        )}
+
+        {isHdhp && (
+          <OptionCard title="Direct Primary Care + Catastrophic Coverage" bestFor="Best for: Generally healthy families wanting lower monthly costs"
+            pros={['Unlimited primary care visits for flat monthly fee ($50\u2013$150)', 'Transparent cash pricing for everything else', 'Catastrophic plan covers emergencies']}
+            cons={['Not traditional insurance \u2014 specialist and hospital care paid separately', 'Works best when you\'re healthy']}
+            ctaLabel="Find DPC practices near you" ctaUrl="https://www.dpcfrontier.com" />
+        )}
+
+        {(aboveSubsidy || reason === 'self_employed') && (
+          <OptionCard title="Off-Marketplace Direct from Insurer" bestFor="Best for: Families over the subsidy income threshold"
+            pros={['Same ACA plans, purchased directly from BCBS, Aetna, UHC etc.']}
+            note="No subsidies available this way \u2014 only consider if you don't qualify for marketplace subsidies."
+            ctaLabel="Compare insurers directly" ctaUrl="https://www.healthcare.gov/see-plans/" />
+        )}
+
+        {faith && (
+          <OptionCard title="Health Sharing Ministries" bestFor="Best for: Healthy families in faith communities"
+            pros={['Often lower monthly costs than insurance', 'Community-based model']}
+            cons={['NOT insurance \u2014 no guarantee of payment', 'Pre-existing conditions often excluded', 'Not regulated by state insurance laws']}
+            ctaLabel="Learn about health sharing" ctaUrl="https://www.healthcare.gov/other-coverage/health-sharing/" />
+        )}
+
+        {/* Part 5 — Two-Plan Strategy */}
+        {hasMixedHousehold && (
+          <div className="rounded-2xl border-2 border-sky-light bg-sky-pale p-5">
+            <h3 className="mb-1 font-heading text-base font-bold text-sky">Split Coverage Strategy</h3>
+            <p className="mb-2 text-xs italic text-mid">Best for: Couples with different health needs or income situations</p>
+            <p className="mb-2 text-sm text-charcoal">Each person in a household can be on a different insurance plan. This is legal and sometimes optimal.</p>
+            <p className="mb-1 text-xs font-semibold text-charcoal">When it makes sense:</p>
+            <ul className="mb-2 space-y-1 text-xs text-charcoal">
+              <li>&#10003; One spouse has expensive ongoing care (put on better plan)</li>
+              <li>&#10003; One spouse has employer coverage available while other uses marketplace</li>
+              <li>&#10003; Income differences affect subsidy eligibility</li>
+              <li>&#10003; Children on CHIP while parents use marketplace</li>
+            </ul>
+            <p className="text-xs text-mid">This is exactly what many families do and it&apos;s rarely explained anywhere.</p>
+          </div>
+        )}
+
+        {/* Always show FQHC */}
+        <OptionCard title="Federally Qualified Health Centers (FQHCs)" bestFor="Best for: Anyone needing affordable primary care regardless of insurance"
+          pros={['Sliding scale fees based on income', 'Available in most Texas counties', 'Dental, mental health, and primary care', 'Serves insured and uninsured']}
+          note="This is not insurance but a resource for affordable care."
+          ctaLabel="Find an FQHC near you" ctaUrl="https://findahealthcenter.hrsa.gov" />
+      </div>
+    </section>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// CASH PAY SECTION (Part 3)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function CashPaySection({ costResult }: { costResult: HealthCostResult }) {
+  const winner = costResult.recommendation.winner;
+  const deductible = winner.plan.annualDeductible;
+  const oop = winner.estimatedOop;
+  const underDeductible = oop < deductible;
+
+  return (
+    <section className="mt-10">
+      <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">Should you pay cash or use insurance?</h2>
+      {underDeductible ? (
+        <div className="rounded-2xl border border-border bg-white p-5">
+          <p className="mb-3 text-sm leading-relaxed text-charcoal">
+            Based on your estimated healthcare usage, you&apos;re unlikely to hit your {fmt(deductible)} deductible this year. That means insurance won&apos;t kick in for most of your expenses &mdash; making cash pay worth considering for routine care.
+          </p>
+          <div className="mb-3">
+            <p className="mb-1 text-xs font-semibold text-sage">When cash pay makes sense:</p>
+            <ul className="space-y-0.5 text-xs text-charcoal">
+              <li>&#10003; Routine doctor visits and sick visits</li>
+              <li>&#10003; Lab work and basic diagnostics</li>
+              <li>&#10003; Prescriptions (check GoodRx first)</li>
+            </ul>
+          </div>
+          <div className="mb-3">
+            <p className="mb-1 text-xs font-semibold text-sky">When to go through insurance:</p>
+            <ul className="space-y-0.5 text-xs text-charcoal">
+              <li>&#10003; Specialist visits if you&apos;re close to your deductible</li>
+              <li>&#10003; Any planned procedure or surgery</li>
+              <li>&#10003; Emergency care</li>
+            </ul>
+          </div>
+          <div className="rounded-xl bg-cream p-4">
+            <p className="mb-1 text-xs font-semibold text-charcoal">Cash pay resources:</p>
+            <ul className="space-y-1 text-xs text-charcoal">
+              <li>&#8226; <a href="https://mdsave.com" target="_blank" rel="noopener noreferrer" className="text-sky hover:underline">MDsave.com</a> &mdash; bundled procedure pricing</li>
+              <li>&#8226; <a href="https://goodrx.com" target="_blank" rel="noopener noreferrer" className="text-sky hover:underline">GoodRx.com</a> &mdash; prescription cash prices</li>
+              <li>&#8226; Call any provider and ask: &ldquo;What is your cash pay rate?&rdquo; &mdash; most discount 20&ndash;40%</li>
+              <li>&#8226; <a href="https://findahealthcenter.hrsa.gov" target="_blank" rel="noopener noreferrer" className="text-sky hover:underline">FQHCs</a> &mdash; sliding scale for primary care</li>
+            </ul>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-border bg-white p-5">
+          <p className="mb-3 text-sm leading-relaxed text-charcoal">
+            Based on your expected healthcare usage, you&apos;re likely to hit or approach your {fmt(deductible)} deductible. Running expenses through insurance makes more sense &mdash; every dollar counts toward your deductible, and once you hit it, insurance starts covering costs.
+          </p>
+          <div className="rounded-xl bg-gold-pale p-4">
+            <p className="text-xs font-semibold text-gold-dark">Exception &mdash; prescriptions:</p>
+            <p className="mt-1 text-xs leading-relaxed text-charcoal">
+              Always check <a href="https://goodrx.com" target="_blank" rel="noopener noreferrer" className="text-sky hover:underline">GoodRx.com</a> before filling a prescription. If the GoodRx cash price is lower than your insurance copay, use GoodRx. Note: GoodRx purchases don&apos;t count toward your deductible.
+            </p>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// HSA OPTIMIZATION GUIDE (Part 4)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function HSAGuide({ hsaAnalysis }: { hsaAnalysis: HealthCostResult['hsaAnalysis'] }) {
+  return (
+    <section className="mt-10">
+      <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">HSA Strategies most people don&apos;t know about</h2>
+      <div className="space-y-4">
+        {/* Strategy 1 */}
+        <div className="rounded-2xl border border-sage-light/40 bg-sage-pale p-5">
+          <h3 className="mb-2 text-sm font-bold text-sage">Strategy 1: Max your contribution</h3>
+          <p className="mb-2 text-xs text-charcoal">2025 HSA limits: Individual {fmt(4300)} / Family {fmt(8550)} (55+: add {fmt(1000)} catch-up)</p>
+          <p className="mb-2 text-xs text-charcoal">Your estimated tax savings at your income bracket: <strong className="text-sage">{fmt(hsaAnalysis.annualTaxSavings)}/year</strong></p>
+          <p className="text-xs text-mid">Every dollar contributed reduces your taxable income. Employer contributions are free money &mdash; always accept the full match.</p>
+        </div>
+
+        {/* Strategy 2 */}
+        <div className="rounded-2xl border border-border bg-white p-5">
+          <h3 className="mb-2 text-sm font-bold text-charcoal">Strategy 2: The receipt strategy (almost nobody knows this)</h3>
+          <p className="mb-2 text-xs leading-relaxed text-charcoal">
+            Pay medical expenses out of pocket. Save every receipt. Reimburse yourself from your HSA later &mdash; years or even decades later if you want.
+          </p>
+          <p className="mb-2 text-xs leading-relaxed text-charcoal">
+            Your HSA can be invested like a 401k. If you pay $500 cash for medical care today and let that $500 sit invested in your HSA for 10 years at 7% average return, it grows to ~$985. Then you withdraw $500 tax-free to reimburse yourself &mdash; and keep the $485 growth.
+          </p>
+          <p className="mb-2 text-xs leading-relaxed text-charcoal">
+            There is no IRS deadline for reimbursement as long as the expense occurred after you opened your HSA.
+          </p>
+          <p className="text-xs text-mid">What to do: Keep a simple spreadsheet or folder of medical receipts with the date and amount. These are future tax-free withdrawals.</p>
+        </div>
+
+        {/* Strategy 3 */}
+        <div className="rounded-2xl border border-border bg-white p-5">
+          <h3 className="mb-2 text-sm font-bold text-charcoal">Strategy 3: HSA as retirement account</h3>
+          <p className="text-xs leading-relaxed text-charcoal">
+            After age 65, HSA funds can be withdrawn for ANY reason (not just medical) and taxed like a traditional IRA &mdash; making it effectively a bonus retirement account with triple tax advantages: (1) pre-tax contributions, (2) tax-free growth, (3) tax-free withdrawals for medical (or taxed like IRA after 65).
+          </p>
+        </div>
+
+        {/* Strategy 4 */}
+        <div className="rounded-2xl border border-border bg-white p-5">
+          <h3 className="mb-2 text-sm font-bold text-charcoal">Strategy 4: GoodRx vs HSA</h3>
+          <ul className="space-y-1 text-xs text-charcoal">
+            <li>&#8226; If GoodRx is cheaper: pay cash with GoodRx (does NOT count toward deductible but saves money now)</li>
+            <li>&#8226; If insurance copay is cheaper: pay through insurance (counts toward deductible)</li>
+            <li>&#8226; You can pay GoodRx price using your HSA debit card &mdash; it counts as a qualified medical expense</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MAIN COMPONENT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export default function HealthGuideTool() {
   const [phase, setPhase] = useState<'quiz' | 'loading' | 'email' | 'results'>('quiz');
@@ -278,12 +599,14 @@ export default function HealthGuideTool() {
   const [realPlansLoading, setRealPlansLoading] = useState(true);
   const [insight, setInsight] = useState('');
   const [emailData, setEmailData] = useState<Record<string, unknown>>({});
+  const [quizAnswers, setQuizAnswers] = useState<Record<string, string | string[] | number>>({});
   const [error, setError] = useState(false);
 
   const handleComplete = useCallback(async (answers: Record<string, string | string[] | number>) => {
     setPhase('loading');
     setError(false);
     setRealPlansLoading(true);
+    setQuizAnswers(answers);
 
     try {
       const profile: HealthProfile = {
@@ -304,6 +627,10 @@ export default function HealthGuideTool() {
         cashFlowComfort: (answers.cashFlowComfort as UserHealthInputs['cashFlowComfort']) || 'comfortable',
         employerHsa: (answers.employerHsa as UserHealthInputs['employerHsa']) || 'no',
         incomeBracket: (answers.incomeBracket as UserHealthInputs['incomeBracket']) || '31_60k',
+        coverageReason: answers.coverageReason as string,
+        hasChildren: answers.hasChildren === 'yes',
+        daysSinceLostCoverage: answers.daysSinceLostCoverage as string,
+        faithCommunityMember: answers.faithCommunityMember === 'yes',
       };
 
       const recommendations = generateRecommendations(profile);
@@ -338,10 +665,8 @@ export default function HealthGuideTool() {
           .then((r) => r.json())
           .then((data) => {
             const fetchedPlans = (data.data || []) as CMSPlanResult[];
-            console.log('[HealthGuide] CMS returned', fetchedPlans.length, 'plans');
             setRealPlans(fetchedPlans);
             if (fetchedPlans.length >= 1) {
-              console.log('[HealthGuide] Running calculateHealthCosts with inputs:', JSON.stringify(healthInputs));
               const result = calculateHealthCosts(fetchedPlans, healthInputs);
               setCostResult(result);
             }
@@ -375,7 +700,7 @@ export default function HealthGuideTool() {
   if (phase === 'loading') {
     return (
       <div className="min-h-screen bg-cream">
-        <LoadingState color="sky" messages={['Analyzing your coverage options...', 'Running cost scenarios...', 'Looking up plans in your area...', 'Preparing your recommendations...']} />
+        <LoadingState color="sky" messages={['Analyzing your situation...', 'Running cost scenarios...', 'Looking up plans in your area...', 'Preparing your recommendations...']} />
       </div>
     );
   }
@@ -388,6 +713,12 @@ export default function HealthGuideTool() {
     );
   }
 
+  const isHdhp = costResult?.recommendation?.winner?.plan?.type?.toLowerCase().includes('hdhp') ||
+    costResult?.recommendation?.winner?.plan?.name?.toLowerCase().includes('hsa') ||
+    (quizAnswers.priority === 'want_hsa') ||
+    (quizAnswers.employerHsa === 'yes');
+  const showHsaGuide = isHdhp && quizAnswers.employerHsa === 'yes' && costResult?.hsaAnalysis?.eligible;
+
   return (
     <div className="min-h-screen bg-cream">
       {phase === 'email' && (
@@ -397,6 +728,9 @@ export default function HealthGuideTool() {
       <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12">
         <h1 className="mb-2 font-heading text-3xl font-bold text-charcoal sm:text-4xl">Your Plan Analysis</h1>
         <p className="mb-8 text-sm text-mid">Based on your profile, here are your best options.</p>
+
+        {/* Part 1 — Routing Cards */}
+        <RoutingCards answers={quizAnswers} />
 
         {/* AI Insight */}
         {insight && <div className="mb-8"><AIInsightBlock insight={insight} color="sky" /></div>}
@@ -417,11 +751,9 @@ export default function HealthGuideTool() {
           <section className="mb-10">
             <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">Plans Available in Your Area</h2>
             <p className="mb-4 text-sm text-mid">Real plans from Healthcare.gov &mdash; updated for {new Date().getFullYear()}</p>
-            <div className="space-y-4">
-              {realPlans.map((plan) => <RealPlanCard key={plan.id} plan={plan} />)}
-            </div>
+            <div className="space-y-4">{realPlans.map((plan) => <RealPlanCard key={plan.id} plan={plan} />)}</div>
             <p className="mt-3 text-xs leading-relaxed text-mid">
-              Plan data from the Federal Health Insurance Marketplace. Premiums shown are estimates &mdash; actual costs depend on your specific household and enrollment details. Always verify on Healthcare.gov before enrolling.
+              Plan data from the Federal Health Insurance Marketplace. Premiums shown are estimates. Always verify on Healthcare.gov before enrolling.
             </p>
           </section>
         ) : null}
@@ -432,17 +764,24 @@ export default function HealthGuideTool() {
           <div className="space-y-6">{plans.map((plan, i) => <PlanCard key={i} plan={plan} />)}</div>
         </section>
 
+        {/* Part 3 — Cash Pay (only for HDHP/HSA profiles) */}
+        {isHdhp && costResult && <CashPaySection costResult={costResult} />}
+
+        {/* Part 4 — HSA Guide (only when hsaEligible) */}
+        {showHsaGuide && costResult && <HSAGuide hsaAnalysis={costResult.hsaAnalysis} />}
+
+        {/* Part 2 + 5 — All Options + Split Coverage */}
+        <AllOptionsSection answers={quizAnswers} />
+
         {/* Key Terms */}
         <section className="mt-12">
           <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">Key Terms Glossary</h2>
-          <div className="space-y-3">
-            {KEY_TERMS.map((item) => (
-              <div key={item.term} className="rounded-xl border border-border bg-white p-4">
-                <p className="text-sm font-semibold text-charcoal">{item.term}</p>
-                <p className="mt-1 text-sm text-mid">{item.definition}</p>
-              </div>
-            ))}
-          </div>
+          <div className="space-y-3">{KEY_TERMS.map((item) => (
+            <div key={item.term} className="rounded-xl border border-border bg-white p-4">
+              <p className="text-sm font-semibold text-charcoal">{item.term}</p>
+              <p className="mt-1 text-sm text-mid">{item.definition}</p>
+            </div>
+          ))}</div>
         </section>
 
         {/* Action Strip */}

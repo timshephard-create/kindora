@@ -10,6 +10,11 @@ export interface UserHealthInputs {
   cashFlowComfort: 'comfortable' | 'tight' | 'no';
   employerHsa: 'yes' | 'no' | 'not_sure';
   incomeBracket: '30k_under' | '31_60k' | '61_100k' | '101k_plus';
+  // Triage fields
+  coverageReason?: string;
+  hasChildren?: boolean;
+  daysSinceLostCoverage?: string;
+  faithCommunityMember?: boolean;
 }
 
 // --- Output Types ---
