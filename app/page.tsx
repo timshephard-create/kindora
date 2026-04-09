@@ -28,14 +28,6 @@ export default function HubPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border px-5 py-8">
-        <div className="mx-auto max-w-5xl text-center">
-          <p className="text-sm text-mid">
-            &copy; 2025 Creative Mind Ventures LLC. Built for families navigating broken systems.
-          </p>
-        </div>
-      </footer>
     </>
   );
 }

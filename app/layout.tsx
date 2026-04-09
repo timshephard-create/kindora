@@ -64,6 +64,17 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <Nav />
         <main>{children}</main>
+        <footer className="border-t border-border px-5 py-6">
+          <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 sm:flex-row">
+            <p className="text-xs text-mid">
+              &copy; 2025 Creative Mind Ventures LLC
+            </p>
+            <div className="flex gap-4">
+              <a href="/privacy" className="text-xs text-mid transition-colors hover:text-charcoal">Privacy Policy</a>
+              <a href="/terms" className="text-xs text-mid transition-colors hover:text-charcoal">Terms of Service</a>
+            </div>
+          </div>
+        </footer>
         <Analytics />
       </body>
     </html>
