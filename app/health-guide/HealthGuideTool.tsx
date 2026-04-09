@@ -338,8 +338,10 @@ export default function HealthGuideTool() {
           .then((r) => r.json())
           .then((data) => {
             const fetchedPlans = (data.data || []) as CMSPlanResult[];
+            console.log('[HealthGuide] CMS returned', fetchedPlans.length, 'plans');
             setRealPlans(fetchedPlans);
-            if (fetchedPlans.length >= 2) {
+            if (fetchedPlans.length >= 1) {
+              console.log('[HealthGuide] Running calculateHealthCosts with inputs:', JSON.stringify(healthInputs));
               const result = calculateHealthCosts(fetchedPlans, healthInputs);
               setCostResult(result);
             }

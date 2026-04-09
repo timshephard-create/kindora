@@ -43,31 +43,47 @@ async function logToAirtable(
   wasOverridden: boolean,
   inputSummary: string,
 ): Promise<void> {
-  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) return;
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    console.warn('[Validation] Airtable credentials missing — skipping log');
+    return;
+  }
 
   try {
     const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(VALIDATION_TABLE)}`;
-    await fetch(url, {
+    const payload = {
+      records: [{
+        fields: {
+          Tool: tool,
+          Flags: flags.join('; '),
+          Confidence: confidence,
+          WasOverridden: wasOverridden,
+          InputSummary: inputSummary.slice(0, 500),
+          Timestamp: new Date().toISOString(),
+        },
+      }],
+    };
+
+    console.log('[Validation] Writing to Airtable table:', VALIDATION_TABLE);
+    console.log('[Validation] Payload:', JSON.stringify(payload));
+
+    const res = await fetch(url, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${AIRTABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        records: [{
-          fields: {
-            Tool: tool,
-            Flags: flags.join('; '),
-            Confidence: confidence,
-            WasOverridden: wasOverridden,
-            InputSummary: inputSummary.slice(0, 500),
-            Timestamp: new Date().toISOString(),
-          },
-        }],
-      }),
+      body: JSON.stringify(payload),
     });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      console.log('[Validation] Airtable log success:', res.status);
+    } else {
+      console.error('[Validation] Airtable log failed:', res.status, JSON.stringify(data));
+    }
   } catch (err) {
-    console.error('[Validation] Airtable log failed:', err);
+    console.error('[Validation] Airtable log fetch error:', err);
   }
 }
 
@@ -83,10 +99,18 @@ export async function validateRecommendation(
     safeguardedResponse: rawOutput,
   };
 
-  if (!process.env.ANTHROPIC_API_KEY) return defaultResult;
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.log('[Validation] No ANTHROPIC_API_KEY — skipping validation for:', toolName);
+    return defaultResult;
+  }
 
   const systemPrompt = TOOL_PROMPTS[toolName];
-  if (!systemPrompt) return defaultResult;
+  if (!systemPrompt) {
+    console.log('[Validation] No prompt for tool:', toolName);
+    return defaultResult;
+  }
+
+  console.log('[Validation] Calling validator for:', toolName);
 
   try {
     const message = await anthropic.messages.create({

@@ -78,16 +78,29 @@ const TAX_RATES: Record<string, number> = {
   '101k_plus': 0.32,
 };
 
+// --- Defensive Defaults ---
+
+function withDefaults(inputs: Partial<UserHealthInputs>): UserHealthInputs {
+  return {
+    planMembers: inputs.planMembers || 'whole_family',
+    prescriptions: inputs.prescriptions || 'none',
+    specialistVisits: inputs.specialistVisits || '1_3',
+    plannedProcedures: inputs.plannedProcedures || 'none',
+    cashFlowComfort: inputs.cashFlowComfort || 'tight',
+    employerHsa: inputs.employerHsa || 'not_sure',
+    incomeBracket: inputs.incomeBracket || '31_60k',
+  };
+}
+
 // --- Utilization Estimation ---
 
 function estimateSickVisits(inputs: UserHealthInputs): number {
-  // Based on specialist visits as a proxy for overall utilization
   switch (inputs.specialistVisits) {
     case 'none': return 2;
     case '1_3': return 4;
     case '4_8': return 6;
     case '8_plus': return 10;
-    default: return 3;
+    default: return 4;
   }
 }
 
@@ -97,7 +110,7 @@ function estimateSpecialistVisits(inputs: UserHealthInputs): number {
     case '1_3': return 2;
     case '4_8': return 6;
     case '8_plus': return 10;
-    default: return 0;
+    default: return 2;
   }
 }
 
@@ -127,9 +140,11 @@ function isFamily(inputs: UserHealthInputs): boolean {
 // --- Core Calculation ---
 
 function calculatePlanCosts(plan: CMSPlanResult, inputs: UserHealthInputs): PlanComparison {
-  const annualPremium = plan.monthlyWithSubsidy * 12;
-  const deductible = plan.annualDeductible;
-  const oopMax = plan.annualMoop;
+  // Use premium_w_credit if available, fall back to full premium
+  const monthlyPremium = plan.monthlyWithSubsidy > 0 ? plan.monthlyWithSubsidy : plan.monthlyPremium;
+  const annualPremium = monthlyPremium * 12;
+  const deductible = plan.annualDeductible || 0;
+  const oopMax = plan.annualMoop || 0;
 
   // Healthy year: only preventive (covered at $0), just pay premium
   const healthyYearCost = annualPremium;
@@ -141,15 +156,19 @@ function calculatePlanCosts(plan: CMSPlanResult, inputs: UserHealthInputs): Plan
   const procedureCost = estimateProcedureCost(inputs);
   const totalMedicalSpend = sickVisitCost + specialistCost + rxCost + procedureCost;
 
-  // OOP = min(totalMedicalSpend, oopMax) but deductible applies first
-  const afterDeductible = Math.max(0, totalMedicalSpend - deductible);
-  // After deductible, assume ~20% coinsurance on remainder
-  const coinsurancePortion = afterDeductible * 0.2;
-  const estimatedOop = Math.min(deductible + coinsurancePortion, oopMax);
+  // Calculate OOP: pay deductible first, then coinsurance on remainder
+  let estimatedOop: number;
+  if (totalMedicalSpend <= deductible) {
+    // All spend is under deductible — you pay it all
+    estimatedOop = totalMedicalSpend;
+  } else {
+    // Deductible met, then ~20% coinsurance on remainder
+    const afterDeductible = totalMedicalSpend - deductible;
+    const coinsurancePortion = afterDeductible * 0.2;
+    estimatedOop = Math.min(deductible + coinsurancePortion, oopMax);
+  }
 
   const expectedYearCost = annualPremium + estimatedOop;
-
-  // Rough year: full deductible hit or OOP max, whichever is lower
   const roughYearCost = annualPremium + oopMax;
 
   return {
@@ -167,9 +186,14 @@ function calculatePlanCosts(plan: CMSPlanResult, inputs: UserHealthInputs): Plan
 
 export function calculateHealthCosts(
   plans: CMSPlanResult[],
-  inputs: UserHealthInputs,
+  rawInputs: UserHealthInputs,
 ): HealthCostResult {
+  const inputs = withDefaults(rawInputs);
+
+  console.log('[HealthCalc] Entry — plans:', plans.length, 'inputs:', JSON.stringify(inputs));
+
   if (plans.length === 0) {
+    console.log('[HealthCalc] No plans provided — returning empty result');
     const empty: PlanComparison = {
       plan: { id: '', name: 'No plans available', issuer: '', metalLevel: '', type: '', monthlyPremium: 0, monthlyWithSubsidy: 0, annualDeductible: 0, annualMoop: 0, benefitsUrl: '', subsidyAmount: 0 },
       annualPremium: 0, healthyYearCost: 0, expectedYearCost: 0, roughYearCost: 0, estimatedOop: 0, isWinner: true,
@@ -181,6 +205,15 @@ export function calculateHealthCosts(
       fsaAnalysis: { limit: FSA_LIMIT_2025, recommendedContribution: 0, taxRate: 0, annualTaxSavings: 0 },
     };
   }
+
+  // Log first plan data to diagnose $0 issues
+  console.log('[HealthCalc] First plan:', JSON.stringify({
+    name: plans[0].name,
+    monthlyPremium: plans[0].monthlyPremium,
+    monthlyWithSubsidy: plans[0].monthlyWithSubsidy,
+    annualDeductible: plans[0].annualDeductible,
+    annualMoop: plans[0].annualMoop,
+  }));
 
   // Calculate costs for each plan
   const comparisons = plans.map((plan) => calculatePlanCosts(plan, inputs));
@@ -238,7 +271,7 @@ export function calculateHealthCosts(
   if (marginOfSavings > 500) {
     keyFactors.push(`Clear winner by $${Math.round(marginOfSavings)}/year`);
   } else if (marginOfSavings > 0) {
-    keyFactors.push('Top plans are close in cost — other factors may matter more');
+    keyFactors.push('Top plans are close in cost \u2014 other factors may matter more');
   }
 
   // Confidence level
@@ -263,7 +296,7 @@ export function calculateHealthCosts(
   if (inputs.cashFlowComfort === 'no' && winner.plan.annualDeductible > 2000) {
     cashFlowWarning = `Your top plan has a $${winner.plan.annualDeductible.toLocaleString()} deductible. Since a $3,000 bill would be difficult, consider whether a higher-premium plan with a lower deductible might give you more peace of mind.`;
   } else if (inputs.cashFlowComfort === 'tight' && winner.plan.annualDeductible > 4000) {
-    cashFlowWarning = `This plan's $${winner.plan.annualDeductible.toLocaleString()} deductible is high. You indicated a large unexpected bill would hurt — make sure you have savings to cover the deductible if needed.`;
+    cashFlowWarning = `This plan's $${winner.plan.annualDeductible.toLocaleString()} deductible is high. You indicated a large unexpected bill would hurt \u2014 make sure you have savings to cover the deductible if needed.`;
   }
 
   // HSA opportunity
@@ -272,7 +305,7 @@ export function calculateHealthCosts(
     hsaOpportunity = `By maxing out your HSA contribution ($${hsaMax.toLocaleString()}/year), you'd save approximately $${hsaTaxSavings.toLocaleString()}/year in taxes. Unlike an FSA, unused HSA funds roll over forever.`;
   }
 
-  return {
+  const result: HealthCostResult = {
     planComparisons: comparisons,
     recommendation: {
       winner,
@@ -287,4 +320,12 @@ export function calculateHealthCosts(
     hsaAnalysis,
     fsaAnalysis,
   };
+
+  console.log('[HealthCalc] Output — winner:', winner.plan.name,
+    'annualPremium:', winner.annualPremium,
+    'expectedYear:', winner.expectedYearCost,
+    'roughYear:', winner.roughYearCost,
+    'estimatedOop:', winner.estimatedOop);
+
+  return result;
 }
