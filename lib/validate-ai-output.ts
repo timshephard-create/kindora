@@ -125,7 +125,12 @@ export async function validateRecommendation(
     if (!textBlock) return defaultResult;
 
     try {
-      const parsed = JSON.parse(textBlock.text) as {
+      const cleaned = textBlock.text
+        .replace(/^```json\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/```$/i, '')
+        .trim();
+      const parsed = JSON.parse(cleaned) as {
         valid: boolean;
         flags: string[];
         confidence: 'high' | 'medium' | 'low';
