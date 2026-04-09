@@ -644,6 +644,7 @@ export default function HealthGuideTool() {
   const [costResult, setCostResult] = useState<HealthCostResult | null>(null);
   const [realPlansLoading, setRealPlansLoading] = useState(true);
   const [insight, setInsight] = useState('');
+  const [insightLoading, setInsightLoading] = useState(true);
   const [emailData, setEmailData] = useState<Record<string, unknown>>({});
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string | string[] | number>>({});
   const [error, setError] = useState(false);
@@ -698,14 +699,18 @@ export default function HealthGuideTool() {
       });
 
       // Fetch AI insight in background
+      setInsightLoading(true);
       fetch('/api/insight', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tool: 'health', profile: answers }),
       })
         .then((r) => r.json())
-        .then((data) => setInsight(data.data?.insight || ''))
-        .catch(() => {});
+        .then((data) => {
+          setInsight(data.data?.insight || '');
+          setInsightLoading(false);
+        })
+        .catch(() => setInsightLoading(false));
 
       // Fetch CMS real plans + run decision engine
       const zip = answers.zip as string;
@@ -803,7 +808,24 @@ export default function HealthGuideTool() {
         <RoutingCards answers={quizAnswers} />
 
         {/* AI Insight */}
-        {insight && <div className="mb-8"><AIInsightBlock insight={insight} color="sky" /></div>}
+        {insightLoading ? (
+          <div className="mb-8 rounded-2xl border border-sky-light/30 bg-sky-pale p-6">
+            <div className="mb-3 flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-mid">
+                Generating your personalized insight&hellip;
+              </span>
+            </div>
+            <div className="animate-pulse space-y-2">
+              <div className="h-4 w-full rounded bg-sky-light/20" />
+              <div className="h-4 w-5/6 rounded bg-sky-light/20" />
+              <div className="h-4 w-3/4 rounded bg-sky-light/20" />
+            </div>
+          </div>
+        ) : insight ? (
+          <div className="mb-8 transition-opacity duration-500">
+            <AIInsightBlock insight={insight} color="sky" />
+          </div>
+        ) : null}
 
         {/* Decision Engine Comparison */}
         {costResult && (
