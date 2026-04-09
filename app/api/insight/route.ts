@@ -23,7 +23,7 @@ function buildPrompt(tool: string, profile: Record<string, unknown>): string {
 
   const context: Record<string, string> = {
     childcare: `You are a caring childcare advisor for families. Based on this family's profile, give a warm, personalized 2-3 sentence insight about their childcare situation. Be specific to their details. No bullet points. No jargon.\n\nProfile:\n${profileStr}`,
-    health: `You are a family health insurance advisor. Based on this family's profile, give a warm, personalized 2-3 sentence insight about their health coverage situation. Be encouraging and specific. No bullet points. No jargon.\n\nProfile:\n${profileStr}`,
+    health: `You are a family health insurance advisor. Based on this family's profile, give a warm, personalized 2-3 sentence insight about their health coverage situation. Be encouraging and specific. No bullet points. No jargon.\n\nIMPORTANT: Only reference information the user explicitly provided in their quiz answers below. Do not infer, assume, or mention medical conditions, life events, or plans (such as pregnancy, upcoming procedures, or family planning) that are not present in the input data.\n\nProfile:\n${profileStr}`,
     media: `You are a child development media specialist. Based on this child's profile, give a warm, personalized 2-3 sentence insight about finding appropriate content. Be specific to their age and context. No bullet points.\n\nProfile:\n${profileStr}`,
   };
 
@@ -68,11 +68,14 @@ export async function POST(request: NextRequest) {
     console.log('[Insight] VALIDATOR CALLED for:', tool);
     const validation = await validateRecommendation(tool, insight, JSON.stringify(profile).slice(0, 300));
     console.log('[Insight] Validation result — valid:', validation.valid, 'flags:', validation.flags.length, 'confidence:', validation.confidence);
-    if (validation.flags.length > 0) {
+    const wasOverridden = validation.flags.length > 0;
+    if (wasOverridden) {
       insight = validation.safeguardedResponse;
     }
 
-    return NextResponse.json({ data: { insight } });
+    console.log('[Insight] Returning — wasOverridden:', wasOverridden, '| insight length:', insight.length, '| insight preview:', insight.slice(0, 80));
+
+    return NextResponse.json({ data: { insight, wasOverridden } });
   } catch (err) {
     console.error('[API /insight] Error:', err);
     const tool = 'childcare';

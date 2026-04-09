@@ -655,10 +655,17 @@ export default function HealthGuideTool() {
     setQuizAnswers(answers);
 
     try {
+      // Default employerCoverage when Q8 was skipped (lost_job → none, never_had → none)
+      const reason = answers.coverageReason as string;
+      let employerCov = answers.employerCoverage as string;
+      if (!employerCov || employerCov === 'undefined') {
+        employerCov = reason === 'lost_job' || reason === 'never_had' ? 'none' : 'none';
+      }
+
       const profile: HealthProfile = {
         householdSize: answers.householdSize as string,
         income: answers.income as number,
-        employerCoverage: answers.employerCoverage as string,
+        employerCoverage: employerCov,
         healthUsage: answers.healthUsage as string,
         priority: answers.priority as string,
         doctorImportance: answers.doctorImportance as string,
