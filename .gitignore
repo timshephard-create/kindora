@@ -44,3 +44,8 @@ public/swe-worker-*.js
 # Capacitor
 /android/
 /ios/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/

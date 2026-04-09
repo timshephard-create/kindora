@@ -367,7 +367,7 @@ function RoutingCards({ answers }: { answers: Record<string, string | string[] |
       <h2 className="font-heading text-xl font-bold text-charcoal">Important for your situation</h2>
 
       {showChip && (
-        <div className="rounded-2xl border-2 border-sage bg-sage-pale p-5">
+        <div className="rounded-2xl border-2 border-sage bg-sage-pale p-5" data-testid="chip-card">
           <h3 className="mb-2 font-heading text-base font-bold text-sage">Your kids may qualify for CHIP</h3>
           <p className="mb-3 text-sm leading-relaxed text-charcoal">
             In Texas, families earning up to about $60,000 for a family of 4 may qualify for free or low-cost coverage for their children through the Children&apos;s Health Insurance Program, regardless of your own insurance situation. We recommend checking CHIP eligibility first &mdash; it&apos;s often free.
@@ -378,7 +378,7 @@ function RoutingCards({ answers }: { answers: Record<string, string | string[] |
       )}
 
       {showCobra && (
-        <div className="rounded-2xl border-2 border-gold bg-gold-pale p-5">
+        <div className="rounded-2xl border-2 border-gold bg-gold-pale p-5" data-testid="cobra-card">
           <h3 className="mb-2 font-heading text-base font-bold text-gold-dark">You have a COBRA decision to make</h3>
           <p className="mb-2 text-sm leading-relaxed text-charcoal">
             When you lose employer coverage, you have 60 days to elect COBRA &mdash; which lets you keep your exact same plan and doctors. After 60 days, that window closes permanently.
@@ -394,7 +394,7 @@ function RoutingCards({ answers }: { answers: Record<string, string | string[] |
       )}
 
       {showCoverageGap && (
-        <div className="rounded-2xl border-2 border-[#B85C3A] bg-[#FDF0EC] p-5">
+        <div className="rounded-2xl border-2 border-[#B85C3A] bg-[#FDF0EC] p-5" data-testid="coverage-gap-card">
           {isTexas ? (
             <>
               <h3 className="mb-2 font-heading text-base font-bold text-[#B85C3A]">Texas coverage gap &mdash; know your options</h3>
@@ -529,7 +529,7 @@ function CashPaySection({ costResult }: { costResult: HealthCostResult }) {
   const underDeductible = oop < deductible;
 
   return (
-    <section className="mt-10">
+    <section className="mt-10" data-testid="cash-pay-section">
       <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">Should you pay cash or use insurance?</h2>
       {underDeductible ? (
         <div className="rounded-2xl border border-border bg-white p-5">
@@ -585,7 +585,7 @@ function CashPaySection({ costResult }: { costResult: HealthCostResult }) {
 
 function HSAGuide({ hsaAnalysis }: { hsaAnalysis: HealthCostResult['hsaAnalysis'] }) {
   return (
-    <section className="mt-10">
+    <section className="mt-10" data-testid="hsa-guide">
       <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">HSA Strategies most people don&apos;t know about</h2>
       <div className="space-y-4">
         {/* Strategy 1 */}
@@ -800,7 +800,7 @@ export default function HealthGuideTool() {
         <EmailCapture tool={tool} emailResultsData={emailData} onDismiss={() => setPhase('results')} />
       )}
 
-      <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12">
+      <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12" data-testid="results-container">
         <h1 className="mb-2 font-heading text-3xl font-bold text-charcoal sm:text-4xl">Your Plan Analysis</h1>
         <p className="mb-8 text-sm text-mid">Based on your profile, here are your best options.</p>
 
@@ -832,7 +832,7 @@ export default function HealthGuideTool() {
           <section className="mb-10">
             <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">Cost Comparison</h2>
             <p className="mb-4 text-sm text-mid">Based on your expected healthcare usage, prescriptions, and procedures.</p>
-            <PlanComparisonCard recommendation={costResult.recommendation} hsaAnalysis={costResult.hsaAnalysis} />
+            <div data-testid="plan-comparison-card"><PlanComparisonCard recommendation={costResult.recommendation} hsaAnalysis={costResult.hsaAnalysis} /></div>
           </section>
         )}
 

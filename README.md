@@ -27,6 +27,24 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Testing
+
+E2E tests use Playwright (Chromium).
+
+```bash
+# Run all tests (starts dev server automatically)
+npm test
+
+# Run tests with visible browser
+npm run test:headed
+
+# Run tests with Playwright UI
+npm run test:ui
+
+# View HTML test report
+npm run test:report
+```
+
 ## Environment Variables
 
 | Variable | Description |

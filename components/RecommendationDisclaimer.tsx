@@ -13,7 +13,7 @@ export default function RecommendationDisclaimer({ tool }: { tool: string }) {
   const text = DISCLAIMERS[tool] || DISCLAIMERS.health;
 
   return (
-    <div className="mt-10 border-t border-border pt-6">
+    <div className="mt-10 border-t border-border pt-6" data-testid="disclaimer">
       <p className="text-xs leading-relaxed text-mid">
         {text} &copy; 2026 Creative Mind Ventures LLC
       </p>

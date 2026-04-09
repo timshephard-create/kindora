@@ -141,7 +141,7 @@ export default function BrightWatchTool() {
         <EmailCapture tool={tool} emailResultsData={emailData} onDismiss={() => setPhase('results')} />
       )}
 
-      <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12">
+      <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12" data-testid="results-container">
         <h1 className="mb-2 font-heading text-3xl font-bold text-charcoal sm:text-4xl">
           Your Recommendations
         </h1>

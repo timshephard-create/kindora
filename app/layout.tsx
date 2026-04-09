@@ -70,8 +70,8 @@ export default function RootLayout({
               &copy; 2026 Creative Mind Ventures LLC
             </p>
             <div className="flex gap-4">
-              <a href="/privacy" className="text-xs text-mid transition-colors hover:text-charcoal">Privacy Policy</a>
-              <a href="/terms" className="text-xs text-mid transition-colors hover:text-charcoal">Terms of Service</a>
+              <a href="/privacy" data-testid="footer-privacy-link" className="text-xs text-mid transition-colors hover:text-charcoal">Privacy Policy</a>
+              <a href="/terms" data-testid="footer-terms-link" className="text-xs text-mid transition-colors hover:text-charcoal">Terms of Service</a>
             </div>
           </div>
         </footer>

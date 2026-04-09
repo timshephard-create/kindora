@@ -255,7 +255,7 @@ export default function SproutTool() {
         />
       )}
 
-      <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12">
+      <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12" data-testid="results-container">
         <h1 className="mb-2 font-heading text-3xl font-bold text-charcoal sm:text-4xl">
           {results.isGapMode ? 'Gap Care Options' : 'Your Childcare Matches'}
         </h1>
