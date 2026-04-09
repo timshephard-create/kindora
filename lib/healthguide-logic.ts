@@ -20,33 +20,10 @@ function getFPL(householdSize: string): number {
   }
 }
 
-function getHouseholdNumber(householdSize: string): number {
-  switch (householdSize) {
-    case 'just_me': return 1;
-    case 'me_partner': return 2;
-    case 'family_3_4': return 4;
-    case 'family_5_plus': return 6;
-    default: return 4;
-  }
-}
-
 function isSubsidyEligible(income: number, householdSize: string): boolean {
   const fpl = getFPL(householdSize);
   // ACA subsidy eligible up to 400% FPL (expanded through ARP/IRA)
   return income <= fpl * 4;
-}
-
-function estimateMonthlySubsidy(income: number, householdSize: string): number {
-  const fpl = getFPL(householdSize);
-  const fplPercent = (income / fpl) * 100;
-  const members = getHouseholdNumber(householdSize);
-
-  if (fplPercent <= 150) return members * 250;
-  if (fplPercent <= 200) return members * 180;
-  if (fplPercent <= 250) return members * 120;
-  if (fplPercent <= 300) return members * 70;
-  if (fplPercent <= 400) return members * 30;
-  return 0;
 }
 
 export function generateRecommendations(profile: HealthProfile): PlanRecommendation[] {
@@ -113,22 +90,21 @@ export function generateRecommendations(profile: HealthProfile): PlanRecommendat
   // No employer coverage
   if (profile.employerCoverage === 'none') {
     const eligible = isSubsidyEligible(profile.income, profile.householdSize);
-    const monthlySubsidy = estimateMonthlySubsidy(profile.income, profile.householdSize);
 
-    if (eligible && monthlySubsidy > 0) {
+    if (eligible) {
       plans.push({
         rank: 'best',
         rankLabel: 'Best Fit',
         name: 'ACA Marketplace + Premium Subsidy',
-        why: `Based on your income, you likely qualify for an estimated $${monthlySubsidy}/month in premium subsidies through the ACA Marketplace. This can make a Silver or Gold plan surprisingly affordable.`,
+        why: 'Based on your income and household size, you likely qualify for premium subsidies through the ACA Marketplace. Check the plan cards above for your estimated subsidy amount — it can make a Silver or Gold plan surprisingly affordable.',
         pros: [
-          `Estimated subsidy: ~$${monthlySubsidy}/month to lower your premium`,
+          'Premium subsidies can significantly lower your monthly cost — see plan cards for your estimate',
           'Silver plans include extra cost-sharing reductions if income is under 250% FPL',
           'Guaranteed coverage regardless of pre-existing conditions',
         ],
         watchOut: [
           'Open enrollment is typically Nov 1 – Jan 15 (special enrollment with qualifying event)',
-          'Subsidy amount is estimated — actual amount determined at enrollment',
+          'Subsidy amount shown is estimated — actual amount determined at enrollment',
         ],
       });
     } else {
