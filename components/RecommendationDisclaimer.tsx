@@ -15,7 +15,7 @@ export default function RecommendationDisclaimer({ tool }: { tool: string }) {
   return (
     <div className="mt-10 border-t border-border pt-6">
       <p className="text-xs leading-relaxed text-mid">
-        {text} &copy; 2025 Creative Mind Ventures LLC
+        {text} &copy; 2026 Creative Mind Ventures LLC
       </p>
     </div>
   );

@@ -67,7 +67,7 @@ export default function RootLayout({
         <footer className="border-t border-border px-5 py-6">
           <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 sm:flex-row">
             <p className="text-xs text-mid">
-              &copy; 2025 Creative Mind Ventures LLC
+              &copy; 2026 Creative Mind Ventures LLC
             </p>
             <div className="flex gap-4">
               <a href="/privacy" className="text-xs text-mid transition-colors hover:text-charcoal">Privacy Policy</a>

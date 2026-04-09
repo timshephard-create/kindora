@@ -313,7 +313,7 @@ export default function TermsOfService() {
       {/* Footer */}
       <div className="border-t border-gray-100 mt-8">
         <div className="max-w-3xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
-          <span>&copy; 2025 {COMPANY}. All rights reserved.</span>
+          <span>&copy; 2026 {COMPANY}. All rights reserved.</span>
           <div className="flex gap-4">
             <a href="/privacy" className="hover:text-gray-600 transition-colors">Privacy Policy</a>
             <a href="/" className="hover:text-gray-600 transition-colors">Back to {APP_NAME}</a>
