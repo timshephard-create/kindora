@@ -67,16 +67,37 @@ export async function POST(request: NextRequest) {
 
     const aptc = subsidy?.aptc || 0;
 
+    // Log raw structure of first plan for debugging deductible/moop field names
+    if (plans.length > 0) {
+      const sample = plans[0];
+      console.log('[CMS] Raw plan sample — deductibles:', JSON.stringify(sample.deductibles?.slice(0, 3)));
+      console.log('[CMS] Raw plan sample — moops:', JSON.stringify(sample.moops?.slice(0, 3)));
+      console.log('[CMS] Raw plan sample — premium:', sample.premium, 'premium_w_credit:', sample.premium_w_credit);
+    }
+
     // 3. Map to simplified results, sort by subsidized premium
     const results: CMSPlanResult[] = plans
-      .slice(0, 20) // limit processing
+      .slice(0, 20)
       .map((plan) => {
-        const deductible = plan.deductibles?.find(
+        // Extract deductible — try specific match first, then fall back to first entry
+        const deductibleMatch = plan.deductibles?.find(
           (d) => d.type === 'Medical EHB Deductible' && d.family_cost === 'Individual',
         );
-        const moop = plan.moops?.find(
+        const deductibleFallback = plan.deductibles?.[0];
+        const annualDeductible = deductibleMatch?.amount
+          ?? (deductibleFallback as Record<string, number | string>)?.['individual']
+          ?? deductibleFallback?.amount
+          ?? 0;
+
+        // Extract OOP max — try specific match first, then fall back to first entry
+        const moopMatch = plan.moops?.find(
           (m) => m.type === 'Maximum Out of Pocket for Medical EHB Benefits' && m.family_cost === 'Individual',
         );
+        const moopFallback = plan.moops?.[0];
+        const annualMoop = moopMatch?.amount
+          ?? (moopFallback as Record<string, number | string>)?.['individual']
+          ?? moopFallback?.amount
+          ?? 0;
 
         return {
           id: plan.id,
@@ -86,14 +107,25 @@ export async function POST(request: NextRequest) {
           type: plan.type || '',
           monthlyPremium: plan.premium || 0,
           monthlyWithSubsidy: plan.premium_w_credit ?? Math.max(0, (plan.premium || 0) - aptc),
-          annualDeductible: deductible?.amount || 0,
-          annualMoop: moop?.amount || 0,
+          annualDeductible: typeof annualDeductible === 'number' ? annualDeductible : 0,
+          annualMoop: typeof annualMoop === 'number' ? annualMoop : 0,
           benefitsUrl: plan.benefits_url || '',
           subsidyAmount: aptc,
         };
       })
       .sort((a, b) => a.monthlyWithSubsidy - b.monthlyWithSubsidy)
       .slice(0, 5);
+
+    // Log mapped result for first plan
+    if (results.length > 0) {
+      console.log('[CMS] Mapped first plan:', JSON.stringify({
+        name: results[0].name,
+        monthlyPremium: results[0].monthlyPremium,
+        monthlyWithSubsidy: results[0].monthlyWithSubsidy,
+        annualDeductible: results[0].annualDeductible,
+        annualMoop: results[0].annualMoop,
+      }));
+    }
 
     return NextResponse.json({ data: results });
   } catch (err) {

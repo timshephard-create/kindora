@@ -22,8 +22,26 @@ export interface CMSPlan {
   premium: number;
   premium_w_credit: number;
   ehb_premium: number;
-  deductibles: Array<{ amount: number; type: string; family_cost: string }>;
-  moops: Array<{ amount: number; type: string; family_cost: string }>;
+  deductibles: Array<{
+    amount?: number;
+    individual?: number;
+    family?: number;
+    type?: string;
+    family_cost?: string;
+    network_tier?: string;
+    csr?: string;
+    [key: string]: unknown;
+  }>;
+  moops: Array<{
+    amount?: number;
+    individual?: number;
+    family?: number;
+    type?: string;
+    family_cost?: string;
+    network_tier?: string;
+    csr?: string;
+    [key: string]: unknown;
+  }>;
   benefits_url: string;
   brochure_url: string;
 }
