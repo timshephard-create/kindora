@@ -77,10 +77,9 @@ async function logToAirtable(
 
     const data = await res.json();
 
-    if (res.ok) {
-      console.log('[Validation] Airtable log success:', res.status);
-    } else {
-      console.error('[Validation] Airtable log failed:', res.status, JSON.stringify(data));
+    console.log('[Validation] AIRTABLE WRITE ATTEMPTED — status:', res.status, 'ok:', res.ok, 'body:', JSON.stringify(data));
+    if (!res.ok) {
+      console.error('[Validation] Airtable log FAILED:', res.status, JSON.stringify(data));
     }
   } catch (err) {
     console.error('[Validation] Airtable log fetch error:', err);

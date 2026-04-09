@@ -80,8 +80,16 @@ export default function PlanComparisonCard({ recommendation, hsaAnalysis }: Prop
               </tr>
             </thead>
             <tbody>
-              <Row label="Monthly Premium" val1={fmt(plans[0].plan.monthlyWithSubsidy)} val2={fmt(plans[1].plan.monthlyWithSubsidy)} />
-              <Row label="Annual Premium" val1={fmt(plans[0].annualPremium)} val2={fmt(plans[1].annualPremium)} />
+              <Row
+                label="Monthly Premium"
+                val1={plans[0].plan.monthlyWithSubsidy === 0 ? '$0 (fully subsidized)' : fmt(plans[0].plan.monthlyWithSubsidy)}
+                val2={plans[1].plan.monthlyWithSubsidy === 0 ? '$0 (fully subsidized)' : fmt(plans[1].plan.monthlyWithSubsidy)}
+              />
+              <Row
+                label="Annual Premium"
+                val1={plans[0].annualPremium === 0 ? '$0 (fully subsidized)' : fmt(plans[0].annualPremium)}
+                val2={plans[1].annualPremium === 0 ? '$0 (fully subsidized)' : fmt(plans[1].annualPremium)}
+              />
               <Row label="Deductible" val1={fmt(plans[0].plan.annualDeductible)} val2={fmt(plans[1].plan.annualDeductible)} />
               <Row label="Out-of-Pocket Max" val1={fmt(plans[0].plan.annualMoop)} val2={fmt(plans[1].plan.annualMoop)} />
               <Divider />

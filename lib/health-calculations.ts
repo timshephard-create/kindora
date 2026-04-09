@@ -140,8 +140,8 @@ function isFamily(inputs: UserHealthInputs): boolean {
 // --- Core Calculation ---
 
 function calculatePlanCosts(plan: CMSPlanResult, inputs: UserHealthInputs): PlanComparison {
-  // Use premium_w_credit if available, fall back to full premium
-  const monthlyPremium = plan.monthlyWithSubsidy > 0 ? plan.monthlyWithSubsidy : plan.monthlyPremium;
+  // Use subsidized premium — only fall back to full premium if subsidized is null/undefined, NOT if it's 0
+  const monthlyPremium = plan.monthlyWithSubsidy != null ? plan.monthlyWithSubsidy : plan.monthlyPremium;
   const annualPremium = monthlyPremium * 12;
   const deductible = plan.annualDeductible || 0;
   const oopMax = plan.annualMoop || 0;

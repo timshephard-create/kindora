@@ -65,7 +65,9 @@ export async function POST(request: NextRequest) {
     let insight = textBlock ? textBlock.text : FALLBACK_INSIGHTS[tool] || '';
 
     // Validate AI output
+    console.log('[Insight] VALIDATOR CALLED for:', tool);
     const validation = await validateRecommendation(tool, insight, JSON.stringify(profile).slice(0, 300));
+    console.log('[Insight] Validation result — valid:', validation.valid, 'flags:', validation.flags.length, 'confidence:', validation.confidence);
     if (validation.flags.length > 0) {
       insight = validation.safeguardedResponse;
     }
