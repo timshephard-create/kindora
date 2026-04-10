@@ -141,7 +141,7 @@ export default function PremiumWaitlistCard({ toolId }: { toolId: string }) {
           {emailError && <p className="mt-1 text-xs text-[#B85C3A]">{emailError}</p>}
           {status === 'error' && (
             <p className="mt-1 text-xs text-mid">
-              Something went wrong. Try again or email tim@timshephard.co
+              Something went wrong. Try again or email tim@kindora.world
             </p>
           )}
           <p className="mt-2 text-[10px] text-mid">Free to join. No spam. Ever.</p>

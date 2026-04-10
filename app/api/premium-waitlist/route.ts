@@ -66,7 +66,7 @@ async function sendConfirmationEmail(email: string): Promise<boolean> {
   }
 
   const payload = {
-    sender: { name: 'Tim at Kindora World', email: 'tim@timshephard.co' },
+    sender: { name: 'Tim at Kindora World', email: 'tim@kindora.world' },
     to: [{ email }],
     subject: 'You\'re on the Kindora Premium waitlist \uD83C\uDF31',
     htmlContent: `

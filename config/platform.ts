@@ -9,7 +9,7 @@ export const PLATFORM = {
   legalEntity: 'Creative Mind Ventures LLC',
   email: {
     fromName: 'Tim at Kindora World',
-    fromEmail: 'tim@timshephard.co',
+    fromEmail: 'tim@kindora.world',
   },
 } as const;
 
