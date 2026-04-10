@@ -69,31 +69,29 @@ async function sendConfirmationEmail(email: string): Promise<boolean> {
     sender: { name: 'Tim at Kindora World', email: 'tim@kindora.world' },
     to: [{ email }],
     subject: 'You\'re on the Kindora Premium waitlist \uD83C\uDF31',
-    htmlContent: `
-<!DOCTYPE html>
+    htmlContent: `<!DOCTYPE html>
 <html>
-<head><meta charset="utf-8" /></head>
-<body style="font-family: 'DM Sans', Arial, sans-serif; color: #2C2C2C; max-width: 560px; margin: 0 auto; padding: 24px; background-color: #FAF6F0;">
-  <div style="padding: 32px 24px; background: #FFFDF9; border-radius: 16px;">
-    <p style="font-size: 16px; line-height: 1.7;">Hey &mdash; you're in.</p>
-    <p style="font-size: 16px; line-height: 1.7;">
-      We're building Kindora Premium to help families save their results, track their progress,
-      and never have to start from scratch when life changes.
-    </p>
-    <p style="font-size: 16px; line-height: 1.7;">As a founding member you'll get:</p>
-    <ul style="font-size: 15px; line-height: 1.8; padding-left: 20px;">
-      <li>First access before public launch</li>
-      <li>Founding member pricing (locked in for life)</li>
-      <li>Direct line to shape what we build next</li>
-    </ul>
-    <p style="font-size: 16px; line-height: 1.7;">We'll be in touch soon.</p>
-    <p style="font-size: 14px; color: #6B6B6B; margin-top: 32px;">
-      &mdash; Tim<br />Kindora World<br />
-      <a href="https://kindora.world" style="color: #5C7A5A;">kindora.world</a>
-    </p>
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
+<body style="margin:0;padding:0;background-color:#FAF6F0;font-family:'DM Sans',Arial,sans-serif;color:#2C2C2C;">
+  <div style="max-width:600px;margin:0 auto;padding:24px 20px;">
+    <div style="text-align:center;padding:16px 0 12px;"><span style="font-size:22px;font-weight:700;color:#2C2C2C;letter-spacing:-0.5px;">Kindora World</span></div>
+    <div style="border-top:2px solid #E2DAD0;margin-bottom:24px;"></div>
+    <div style="background:#FFFDF9;border-radius:16px;padding:28px 24px;">
+      <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">Hey &mdash; you're in.</p>
+      <p style="font-size:15px;line-height:1.6;">We're building Kindora Premium to help families save their results, track their progress, and never have to start from scratch when life changes.</p>
+      <p style="font-size:15px;line-height:1.6;font-weight:600;margin:16px 0 8px;">As a founding member you'll get:</p>
+      <table style="width:100%;border-collapse:collapse;margin:0 0 16px;"><tr><td style="padding:6px 0;font-size:14px;">&#10003; First access before public launch</td></tr><tr><td style="padding:6px 0;font-size:14px;">&#10003; Founding member pricing (locked in for life)</td></tr><tr><td style="padding:6px 0;font-size:14px;">&#10003; Direct line to shape what we build next</td></tr></table>
+      <p style="font-size:15px;line-height:1.6;">We'll be in touch soon.</p>
+    </div>
+    <div style="border-top:1px solid #E2DAD0;margin-top:24px;padding-top:20px;text-align:center;">
+      <p style="font-size:14px;color:#2C2C2C;margin:0;">&mdash; Tim</p>
+      <p style="font-size:13px;color:#6B6B6B;margin:4px 0;">Kindora World</p>
+      <a href="https://kindora.world" style="font-size:13px;color:#5C7A5A;text-decoration:none;">kindora.world</a>
+      <p style="font-size:11px;color:#999;margin:16px 0 0;">You received this because you joined the Kindora Premium waitlist. Questions? <a href="mailto:tim@kindora.world" style="color:#999;">tim@kindora.world</a></p>
+    </div>
   </div>
 </body>
-</html>`.trim(),
+</html>`,
   };
 
   try {
