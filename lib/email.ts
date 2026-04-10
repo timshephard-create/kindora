@@ -111,7 +111,7 @@ function premiumCta(): string {
   return `${divider()}
 <p style="font-size:14px;line-height:1.6;color:#2C2C2C;">Want to save your results and track your progress over time? Join the Kindora Premium waitlist &mdash; founding members get early access and locked-in pricing.</p>
 <div style="text-align:center;margin:16px 0;">
-  <a href="${SITE_URL}" style="display:inline-block;background:${BRAND_COLOR};color:#fff;padding:12px 28px;border-radius:12px;text-decoration:none;font-size:14px;font-weight:600;">Join the waitlist &rarr;</a>
+  <a href="${SITE_URL}/waitlist" style="display:inline-block;background:${BRAND_COLOR};color:#fff;padding:12px 28px;border-radius:12px;text-decoration:none;font-size:14px;font-weight:600;">Join the waitlist &rarr;</a>
 </div>`;
 }
 
