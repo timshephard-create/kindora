@@ -98,8 +98,41 @@ export default function BrightWatchTool() {
         <div className="bg-gold-pale px-5 py-8 text-center">
           <span className="text-3xl">{tool.icon}</span>
           <h1 className="mt-2 font-heading text-3xl font-bold text-charcoal">{tool.name}</h1>
-          <p className="mt-1 text-sm text-mid">{tool.badge} Navigator</p>
+          <p className="mt-1 text-sm text-mid">Media that works FOR your child&apos;s development &mdash; not against it</p>
         </div>
+
+        {/* AAP Screen Time Guidelines */}
+        <div className="mx-auto max-w-xl px-5 pt-6" data-testid="aap-guidelines">
+          <div className="rounded-2xl border border-gold/30 bg-white p-5">
+            <h3 className="mb-1 font-heading text-base font-bold text-charcoal">AAP Screen Time Guidelines</h3>
+            <p className="mb-4 text-xs text-mid">American Academy of Pediatrics recommendations</p>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 text-lg flex-shrink-0">&#128683;</span>
+                <div><p className="text-xs font-semibold text-charcoal">Under 18 months</p><p className="text-xs text-mid">Avoid screen time except video calls with family</p></div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 text-lg flex-shrink-0">&#128104;&#8205;&#128105;&#8205;&#128103;</span>
+                <div><p className="text-xs font-semibold text-charcoal">18&ndash;24 months</p><p className="text-xs text-mid">High-quality programming only. Watch together and talk about what you see.</p></div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 text-lg flex-shrink-0">&#9200;</span>
+                <div><p className="text-xs font-semibold text-charcoal">2&ndash;5 years</p><p className="text-xs text-mid">1 hour per day of high-quality programming. Co-view when possible.</p></div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 text-lg flex-shrink-0">&#128203;</span>
+                <div><p className="text-xs font-semibold text-charcoal">6 years and up</p><p className="text-xs text-mid">Set consistent limits on time and types of media. Ensure it doesn&apos;t displace sleep, physical activity, or homework.</p></div>
+              </div>
+            </div>
+            <p className="mt-3 text-[10px] text-mid">
+              Source: <a href="https://www.healthychildren.org" target="_blank" rel="noopener noreferrer" className="text-gold-dark hover:underline">American Academy of Pediatrics (healthychildren.org)</a>
+            </p>
+          </div>
+          <p className="mt-4 mb-2 text-center text-sm leading-relaxed text-mid">
+            Screen time isn&apos;t all bad or all good. BrightWatch helps you choose content that supports how your child&apos;s brain is actually developing right now &mdash; not just what&apos;s popular.
+          </p>
+        </div>
+
         <QuizShell
           toolColor={tool.color}
           questions={questions}

@@ -35,6 +35,7 @@ test.describe('Sprout', () => {
     await expect(page.locator('[data-testid="results-container"]')).toBeVisible();
     await expect(page.getByText('All Tools')).toBeVisible();
     await expect(page.locator('[data-testid="disclaimer"]')).toBeVisible();
+    await expect(page.locator('[data-testid="subsidy-next-steps"]')).toBeVisible();
     await assertNoError(page);
   });
 

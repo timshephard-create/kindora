@@ -70,6 +70,22 @@ export default function BrightWatchCard({
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${stimColor}`}>
               {rec.stimulation} stimulation
             </span>
+            {rec.viewing_type && (
+              <span
+                data-testid="watch-together-badge"
+                className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                  rec.viewing_type === 'together'
+                    ? 'bg-sage-pale text-sage'
+                    : rec.viewing_type === 'independent'
+                      ? 'bg-sky-pale text-sky'
+                      : 'bg-border text-mid'
+                }`}
+              >
+                {rec.viewing_type === 'together' && '\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67 Watch Together'}
+                {rec.viewing_type === 'independent' && '\uD83E\uDDD2 Independent OK'}
+                {rec.viewing_type === 'either' && 'Either'}
+              </span>
+            )}
           </div>
           <p className="mb-3 text-sm leading-relaxed text-mid">{rec.why}</p>
           <div className="rounded-lg border border-gold/30 bg-gold-pale p-3">

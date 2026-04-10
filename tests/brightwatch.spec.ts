@@ -11,6 +11,8 @@ test.describe('BrightWatch', () => {
 
   test('Query 1 — Young child, TV shows', async ({ page }) => {
     await page.goto('/bright-watch');
+    // AAP guidelines visible on quiz page
+    await expect(page.locator('[data-testid="aap-guidelines"]')).toBeVisible();
     await page.waitForSelector('h2', { timeout: 10000 });
 
     // All 3 questions are auto-advance

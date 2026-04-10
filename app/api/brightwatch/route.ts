@@ -101,13 +101,16 @@ Return ONLY valid JSON (no markdown, no code fences) in this exact structure:
       "score": number (60-95),
       "stimulation": "Low|Medium|High",
       "why": "1-2 sentences developmental benefit for this specific age",
-      "tip": "One specific parent engagement tip"
+      "tip": "One specific parent engagement tip",
+      "viewing_type": "together|independent|either"
     }
   ],
   "avoid": "2 sentences on what to avoid for this age/context and why"
 }
 
 Give exactly 4 recommendations using real, well-known shows/apps. Use accurate platform info. Scores should reflect genuine developmental value.
+
+For each recommendation, include a "viewing_type" field: "together" if the content benefits from co-viewing and discussion, "independent" if appropriate for the child to watch/use alone, or "either" if both work well.
 
 For each recommendation, if you have any uncertainty about whether this content is currently available on the platform you're listing, flag it by adding "(verify availability)" after the platform name. Also note if a show may have been removed or moved to a different service since your training data.`;
 

@@ -290,6 +290,85 @@ export default function SproutTool() {
           ))}
         </div>
 
+        {/* How to actually get your subsidy */}
+        <section className="mt-10 rounded-2xl border border-sage-light/30 bg-sage-pale/40 p-6" data-testid="subsidy-next-steps">
+          <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">How to Actually Get Your Subsidy</h2>
+          <p className="mb-6 text-sm text-mid">Finding a provider is step one. Here&apos;s how to make the savings real.</p>
+
+          <div className="space-y-6">
+            {/* Step 1 */}
+            <div className="flex gap-4">
+              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-sage text-sm font-bold text-white">1</span>
+              <div>
+                <h3 className="text-sm font-bold text-charcoal">Check your waitlist status</h3>
+                <p className="mt-1 text-xs leading-relaxed text-mid">
+                  Texas CCDF has a waitlist in most counties. Apply now even if you&apos;re not ready &mdash; waitlists can be 6&ndash;18 months long.
+                </p>
+                <a href="https://www.yourtexasbenefits.com" target="_blank" rel="noopener noreferrer" className="mt-2 inline-block rounded-lg bg-sage px-4 py-2 text-xs font-semibold text-white hover:bg-sage-light">
+                  Apply on Your Texas Benefits &rarr;
+                </a>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="flex gap-4">
+              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-sage text-sm font-bold text-white">2</span>
+              <div>
+                <h3 className="text-sm font-bold text-charcoal">Confirm provider accepts CCDF vouchers</h3>
+                <p className="mt-1 text-xs leading-relaxed text-mid">
+                  Before committing to any provider, ask directly: &ldquo;Do you accept CCDF subsidy vouchers?&rdquo; Not all licensed providers participate.
+                </p>
+                <p className="mt-2 text-xs italic text-gold-dark">Tip: Ask this before you fall in love with a provider.</p>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="flex gap-4">
+              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-sage text-sm font-bold text-white">3</span>
+              <div>
+                <h3 className="text-sm font-bold text-charcoal">Gather your documents</h3>
+                <p className="mt-1 text-xs leading-relaxed text-mid">You&apos;ll need:</p>
+                <ul className="mt-1 space-y-0.5 text-xs text-mid">
+                  <li>&#8226; Proof of income (pay stubs, tax return)</li>
+                  <li>&#8226; Proof of Texas residency</li>
+                  <li>&#8226; Child&apos;s birth certificate</li>
+                  <li>&#8226; Proof of work/school/job search</li>
+                  <li>&#8226; Child&apos;s immunization records</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="flex gap-4">
+              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-sage text-sm font-bold text-white">4</span>
+              <div>
+                <h3 className="text-sm font-bold text-charcoal">While you wait</h3>
+                <p className="mt-1 text-xs leading-relaxed text-mid">CCDF processing takes 2&ndash;6 weeks after approval. In the meantime:</p>
+                <ul className="mt-1 space-y-0.5 text-xs text-mid">
+                  <li>&#8226; Ask providers about sliding scale rates &mdash; many offer income-based discounts even without CCDF</li>
+                  <li>&#8226; Check if your employer offers Dependent Care FSA &mdash; up to $5,000 pre-tax for childcare</li>
+                  <li>&#8226; Ask about part-time spots which are often cheaper and more available</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Step 5 */}
+            <div className="flex gap-4">
+              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-sage text-sm font-bold text-white">5</span>
+              <div>
+                <h3 className="text-sm font-bold text-charcoal">Know your rights</h3>
+                <p className="mt-1 text-xs leading-relaxed text-mid">
+                  If denied or waitlisted, you have the right to appeal. Contact the Texas Workforce Commission:
+                </p>
+                <p className="mt-1 text-xs text-mid">
+                  <a href="https://twc.texas.gov/childcare" target="_blank" rel="noopener noreferrer" className="text-sage hover:underline">twc.texas.gov/childcare</a>
+                  {' '}&middot;{' '}1-800-252-8942
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Premium upgrade hook */}
         <div className="mt-8 rounded-2xl border-2 border-dashed border-border bg-white/50 p-6 text-center opacity-60">
           <span className="text-2xl">&#128274;</span>

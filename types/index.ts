@@ -65,6 +65,7 @@ export interface BrightWatchRecommendation {
   stimulation: 'Low' | 'Medium' | 'High';
   why: string;
   tip: string;
+  viewing_type?: 'together' | 'independent' | 'either';
 }
 
 export interface BrightWatchResponse {
