@@ -59,21 +59,17 @@ async function writeToAirtable(email: string, tool: string): Promise<boolean> {
   }
 }
 
-async function sendConfirmationEmail(email: string): Promise<void> {
-  if (!BREVO_API_KEY) return;
-  try {
-    await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        accept: 'application/json',
-        'api-key': BREVO_API_KEY,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        sender: { name: 'Tim at Kindora World', email: 'tim@timshephard.co' },
-        to: [{ email }],
-        subject: 'You\'re on the Kindora Premium waitlist \uD83C\uDF31',
-        htmlContent: `
+async function sendConfirmationEmail(email: string): Promise<boolean> {
+  if (!BREVO_API_KEY) {
+    console.warn('[PremiumWaitlist] No BREVO_API_KEY — skipping email');
+    return false;
+  }
+
+  const payload = {
+    sender: { name: 'Tim at Kindora World', email: 'tim@timshephard.co' },
+    to: [{ email }],
+    subject: 'You\'re on the Kindora Premium waitlist \uD83C\uDF31',
+    htmlContent: `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" /></head>
@@ -98,10 +94,31 @@ async function sendConfirmationEmail(email: string): Promise<void> {
   </div>
 </body>
 </html>`.trim(),
-      }),
+  };
+
+  try {
+    console.log('[PremiumWaitlist] Sending Brevo email to:', email);
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'api-key': BREVO_API_KEY,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(payload),
     });
+
+    const body = await res.text();
+    console.log('[PremiumWaitlist] Brevo response:', res.status, body);
+
+    if (!res.ok) {
+      console.error('[PremiumWaitlist] Brevo send FAILED:', res.status, body);
+      return false;
+    }
+    return true;
   } catch (err) {
-    console.error('[PremiumWaitlist] Brevo error:', err);
+    console.error('[PremiumWaitlist] Brevo fetch error:', err);
+    return false;
   }
 }
 
@@ -119,8 +136,14 @@ export async function POST(request: NextRequest) {
     const exists = await checkDuplicate(email);
     if (!exists) {
       await writeToAirtable(email, tool);
-      // Send confirmation email (fire and forget)
-      sendConfirmationEmail(email).catch(() => {});
+      // Send confirmation email — await so errors are logged
+      try {
+        await sendConfirmationEmail(email);
+      } catch (emailErr) {
+        console.error('[PremiumWaitlist] Email send error:', emailErr);
+      }
+    } else {
+      console.log('[PremiumWaitlist] Duplicate email, skipping write + email:', email);
     }
 
     return NextResponse.json({ success: true });
