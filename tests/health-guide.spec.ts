@@ -47,6 +47,9 @@ test.describe('HealthGuide', () => {
     await expect(page.locator('[data-testid="chip-card"]')).toBeVisible();
     await assertNoError(page);
     await expect(page.locator('[data-testid="disclaimer"]')).toContainText('Creative Mind Ventures LLC');
+    // Premium waitlist card visible
+    await expect(page.locator('[data-testid="premium-waitlist-card"]')).toBeVisible();
+    await expect(page.locator('[data-testid="waitlist-email-input"]')).toBeVisible();
   });
 
   test('Profile 2 — Job loss shows COBRA card, Q8 and Q18 skipped', async ({ page }) => {

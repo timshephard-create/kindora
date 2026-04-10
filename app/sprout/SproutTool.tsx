@@ -11,6 +11,7 @@ import SavingsTiles from '@/components/SavingsTiles';
 import AIInsightBlock from '@/components/AIInsightBlock';
 import CrossToolFooter from '@/components/CrossToolFooter';
 import RecommendationDisclaimer from '@/components/RecommendationDisclaimer';
+import PremiumWaitlistCard from '@/components/PremiumWaitlistCard';
 import { calculateSavings } from '@/lib/savings-calc';
 import type { PlaceResult, SavingsBreakdown } from '@/types';
 import type { QuizQuestion } from '@/types';
@@ -369,33 +370,7 @@ export default function SproutTool() {
           </div>
         </section>
 
-        {/* Premium upgrade hook */}
-        <div className="mt-8 rounded-2xl border-2 border-dashed border-border bg-white/50 p-6 text-center opacity-60">
-          <span className="text-2xl">&#128274;</span>
-          <p className="mt-2 font-heading text-lg font-bold text-charcoal">
-            Get your full {tool.premiumLabel}
-          </p>
-          <p className="mt-1 text-sm text-mid">
-            Unlock with {TOOLS.childcare.name} Premium
-          </p>
-          <button
-            onClick={() => {
-              fetch('/api/leads', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  name: '',
-                  email: 'interest@placeholder.com',
-                  tool: 'premium_interest',
-                  profileSummary: `Sprout premium interest`,
-                }),
-              }).catch(() => {});
-            }}
-            className="mt-3 rounded-lg bg-border px-4 py-2 text-xs font-medium text-mid"
-          >
-            Coming soon
-          </button>
-        </div>
+        <PremiumWaitlistCard toolId={tool.id} />
 
         <RecommendationDisclaimer tool="sprout" />
         <CrossToolFooter currentToolId={tool.id} />

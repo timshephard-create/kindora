@@ -10,6 +10,7 @@ import BrightWatchCard from '@/components/BrightWatchCard';
 import AIInsightBlock from '@/components/AIInsightBlock';
 import CrossToolFooter from '@/components/CrossToolFooter';
 import RecommendationDisclaimer from '@/components/RecommendationDisclaimer';
+import PremiumWaitlistCard from '@/components/PremiumWaitlistCard';
 import type { BrightWatchResponse } from '@/types';
 import type { QuizQuestion } from '@/types';
 
@@ -232,33 +233,7 @@ export default function BrightWatchTool() {
           </a>
         </section>
 
-        {/* Premium hook */}
-        <div className="mt-8 rounded-2xl border-2 border-dashed border-border bg-white/50 p-6 text-center opacity-60">
-          <span className="text-2xl">&#128274;</span>
-          <p className="mt-2 font-heading text-lg font-bold text-charcoal">
-            Get your full {tool.premiumLabel}
-          </p>
-          <p className="mt-1 text-sm text-mid">
-            Unlock with {tool.name} Premium
-          </p>
-          <button
-            onClick={() => {
-              fetch('/api/leads', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  name: '',
-                  email: 'interest@placeholder.com',
-                  tool: 'premium_interest',
-                  profileSummary: `BrightWatch premium interest`,
-                }),
-              }).catch(() => {});
-            }}
-            className="mt-3 rounded-lg bg-border px-4 py-2 text-xs font-medium text-mid"
-          >
-            Coming soon
-          </button>
-        </div>
+        <PremiumWaitlistCard toolId={tool.id} />
 
         <RecommendationDisclaimer tool="brightwatch" />
         <CrossToolFooter currentToolId={tool.id} />
