@@ -29,8 +29,8 @@ Return JSON only: {"valid": boolean, "flags": string[], "confidence": "high"|"me
 
   media: `Review this children's media recommendation.
 Flag if: (1) a show or game is recommended that you cannot confidently identify as real, (2) age recommendations are more specific than the input data supports, (3) any claim about developmental impact stated as clinical fact rather than general guidance.
-Add a confidence field: high if you can clearly identify all recommended content, medium if uncertain about any item, low if any item seems potentially invented.
-Return JSON only: {"valid": boolean, "flags": string[], "confidence": "high"|"medium"|"low", "safeguarded_response": "corrected version if flags exist, otherwise same as input"}`,
+Set confidence to: high if you can clearly identify all recommended content, medium if uncertain about any item, low if any item seems potentially invented.
+Return ONLY a valid JSON object with no markdown, no explanation, no preamble — just the JSON: {"valid": boolean, "flags": string[], "confidence": "high"|"medium"|"low", "safeguarded_response": "corrected version if flags exist, otherwise same as input"}`,
 
   meal: `Review this meal plan recommendation.
 Flag if: (1) specific nutrition numbers are stated as fact (e.g. '32g of protein'), (2) any allergen the user flagged appears in recommended meals, (3) any medical nutrition claim is made.
@@ -126,6 +126,7 @@ export async function validateRecommendation(
     if (!textBlock) return defaultResult;
 
     try {
+      console.log('[Validation] Raw haiku response for', toolName, ':', textBlock.text.substring(0, 500));
       const cleaned = textBlock.text
         .replace(/^```json\s*/im, '')
         .replace(/^```\s*/im, '')
