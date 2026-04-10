@@ -251,6 +251,7 @@ export default function NourishTool() {
 
   const handleComplete = useCallback(async (answers: Record<string, string | string[] | number>) => {
     setPhase('loading');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setError(false);
     setStoresLoading(true);
     const zip = answers.zip as string;
@@ -299,6 +300,7 @@ export default function NourishTool() {
       });
 
       setPhase('email');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
       setError(true);
       setPhase('results');

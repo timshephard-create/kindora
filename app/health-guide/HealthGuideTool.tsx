@@ -652,6 +652,7 @@ export default function HealthGuideTool() {
 
   const handleComplete = useCallback(async (answers: Record<string, string | string[] | number>) => {
     setPhase('loading');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setError(false);
     setRealPlansLoading(true);
     setQuizAnswers(answers);
@@ -737,6 +738,7 @@ export default function HealthGuideTool() {
       }
 
       setPhase('email');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
       setError(true);
       setPhase('results');

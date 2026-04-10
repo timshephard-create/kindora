@@ -138,6 +138,7 @@ export default function SproutTool() {
 
   const handleComplete = useCallback(async (answers: Record<string, string | string[] | number>) => {
     setPhase('loading');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setError(false);
 
     const situation = answers.situation as string;
@@ -197,6 +198,7 @@ export default function SproutTool() {
       });
 
       setPhase('email');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
       setError(true);
       setPhase('results');

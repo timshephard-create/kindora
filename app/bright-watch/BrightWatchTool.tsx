@@ -62,6 +62,7 @@ export default function BrightWatchTool() {
 
   const handleComplete = useCallback(async (answers: Record<string, string | string[] | number>) => {
     setPhase('loading');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setError(false);
 
     try {
@@ -87,6 +88,7 @@ export default function BrightWatchTool() {
         avoid: bwData?.avoid,
       });
       setPhase('email');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
       setError(true);
       setPhase('results');

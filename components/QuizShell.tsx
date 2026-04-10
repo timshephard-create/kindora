@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuizQuestion } from '@/types';
 import OptionButton from './OptionButton';
@@ -24,6 +24,11 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
   const [answers, setAnswers] = useState<Record<string, string | string[] | number>>({});
   const [direction, setDirection] = useState(1);
   const colors = colorClasses[toolColor] || colorClasses.sage;
+
+  // Scroll to top on every question change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [step]);
 
   // Filter to only visible questions based on current answers
   const visibleQuestions = useMemo(() => {
