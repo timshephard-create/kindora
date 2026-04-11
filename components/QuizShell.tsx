@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuizQuestion } from '@/types';
 import OptionButton from './OptionButton';
@@ -24,10 +24,11 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
   const [answers, setAnswers] = useState<Record<string, string | string[] | number>>({});
   const [direction, setDirection] = useState(1);
   const colors = colorClasses[toolColor] || colorClasses.sage;
+  const quizCardRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to top on every question change
+  // Scroll quiz card into view on question change (nearest = no jarring jump)
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    quizCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [step]);
 
   // Filter to only visible questions based on current answers
@@ -152,7 +153,7 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
   const isLastVisible = findNextStep(step, 1) === null;
 
   return (
-    <div className="mx-auto max-w-xl px-5 py-8 sm:py-12">
+    <div ref={quizCardRef} className="mx-auto max-w-xl px-5 py-8 sm:py-12">
       {/* Progress bar */}
       <div className="mb-8">
         <div className="mb-2 flex justify-between text-xs text-mid">
