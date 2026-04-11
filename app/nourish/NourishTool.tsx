@@ -328,6 +328,7 @@ export default function NourishTool() {
         </div>
         <QuizShell
           toolColor={tool.color}
+          toolId={tool.id}
           questions={questions}
           onComplete={handleComplete}
         />

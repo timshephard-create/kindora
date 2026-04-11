@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { PLATFORM } from '@/config/platform';
+import { trackEvent } from '@/lib/analytics';
 
 const FEATURES = [
   {
@@ -51,7 +52,12 @@ export default function WaitlistPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, tool: 'waitlist-page' }),
       });
-      setStatus(res.ok ? 'success' : 'error');
+      if (res.ok) {
+        setStatus('success');
+        trackEvent('waitlist_joined', { tool: 'waitlist_page' });
+      } else {
+        setStatus('error');
+      }
     } catch {
       setStatus('error');
     }

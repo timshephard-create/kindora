@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { trackEvent } from '@/lib/analytics';
 
 interface PremiumContent {
   headline: string;
@@ -76,6 +77,7 @@ export default function PremiumWaitlistCard({ toolId }: { toolId: string }) {
       });
       if (res.ok) {
         setStatus('success');
+        trackEvent('waitlist_joined', { tool: toolId });
       } else {
         setStatus('error');
       }

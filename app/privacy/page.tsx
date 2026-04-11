@@ -260,9 +260,27 @@ export default function PrivacyPolicy() {
 
         <Divider />
 
-        {/* 9. Contact */}
+        {/* 9. Analytics and Tracking */}
         <section>
-          <H2>9. Contact Us</H2>
+          <H2>9. Analytics and Tracking</H2>
+          <p>
+            We use Google Analytics 4, Microsoft Clarity, and Vercel Analytics to understand how families use {APP_NAME}. These tools collect anonymous usage data including pages visited, features used, and general location (city level). No personally identifiable information is shared with these services.
+          </p>
+          <p className="mt-3">
+            You can opt out of Google Analytics at{' '}
+            <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" className="text-emerald-600 underline">tools.google.com/dlpage/gaoptout</a>
+          </p>
+          <p className="mt-3">
+            Microsoft Clarity&apos;s privacy policy is available at{' '}
+            <a href="https://privacy.microsoft.com" target="_blank" rel="noopener noreferrer" className="text-emerald-600 underline">privacy.microsoft.com</a>
+          </p>
+        </section>
+
+        <Divider />
+
+        {/* 10. Contact */}
+        <section>
+          <H2>10. Contact Us</H2>
           <p>
             If you have questions about this Privacy Policy or our data practices, contact us at:
           </p>

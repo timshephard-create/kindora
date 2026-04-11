@@ -215,6 +215,7 @@ export default function SproutTool() {
         </div>
         <QuizShell
           toolColor={tool.color}
+          toolId={tool.id}
           questions={questions}
           onComplete={handleComplete}
         />

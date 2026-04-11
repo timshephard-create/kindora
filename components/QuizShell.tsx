@@ -5,9 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { QuizQuestion } from '@/types';
 import OptionButton from './OptionButton';
 import SliderInput from './SliderInput';
+import { trackEvent } from '@/lib/analytics';
 
 interface QuizShellProps {
   toolColor: string;
+  toolId?: string;
   questions: QuizQuestion[];
   onComplete: (answers: Record<string, string | string[] | number>) => void;
 }
@@ -19,7 +21,7 @@ const colorClasses: Record<string, { button: string; progress: string }> = {
   terra: { button: 'bg-terra hover:bg-terra-light', progress: 'bg-terra' },
 };
 
-export default function QuizShell({ toolColor, questions, onComplete }: QuizShellProps) {
+export default function QuizShell({ toolColor, toolId, questions, onComplete }: QuizShellProps) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[] | number>>({});
   const [direction, setDirection] = useState(1);
@@ -29,7 +31,10 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
   // Scroll quiz card into view on question change (nearest = no jarring jump)
   useEffect(() => {
     quizCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, [step]);
+    if (step === 0 && toolId) {
+      trackEvent('quiz_started', { tool: toolId });
+    }
+  }, [step, toolId]);
 
   // Filter to only visible questions based on current answers
   const visibleQuestions = useMemo(() => {
@@ -74,9 +79,10 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
       setDirection(1);
       setStep(next);
     } else {
+      if (toolId) trackEvent('quiz_completed', { tool: toolId });
       onComplete(answers);
     }
-  }, [step, findNextStep, answers, onComplete]);
+  }, [step, findNextStep, answers, onComplete, toolId]);
 
   const goBack = useCallback(() => {
     const prev = findNextStep(step, -1);
@@ -103,6 +109,7 @@ export default function QuizShell({ toolColor, questions, onComplete }: QuizShel
             setDirection(1);
             setStep(i);
           } else {
+            if (toolId) trackEvent('quiz_completed', { tool: toolId });
             onComplete(newAnswers);
           }
         }, 250);

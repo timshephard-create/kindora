@@ -753,7 +753,7 @@ export default function HealthGuideTool() {
           <h1 className="mt-2 font-heading text-3xl font-bold text-charcoal">{tool.name}</h1>
           <p className="mt-1 text-sm text-mid">{tool.badge} Navigator</p>
         </div>
-        <QuizShell toolColor={tool.color} questions={questions} onComplete={handleComplete} />
+        <QuizShell toolColor={tool.color} toolId={tool.id} questions={questions} onComplete={handleComplete} />
       </div>
     );
   }

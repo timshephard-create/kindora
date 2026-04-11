@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ToolConfig } from '@/config/platform';
+import { trackEvent } from '@/lib/analytics';
 
 interface EmailCaptureProps {
   tool: ToolConfig;
@@ -56,6 +57,7 @@ export default function EmailCapture({ tool, profileSummary, emailResultsData, o
         }),
       ]);
       setStatus('success');
+      trackEvent('email_captured', { tool: tool.id });
       setTimeout(onDismiss, 1500);
     } catch {
       setStatus('error');
