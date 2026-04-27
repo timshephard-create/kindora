@@ -1,9 +1,9 @@
 {
   "name": "Kindora",
   "short_name": "Kindora",
-  "description": "The systems are broken. We help you navigate them.",
-  "theme_color": "#2C2C2C",
-  "background_color": "#FAF6F0",
+  "description": "Childcare, health insurance, kids' media, meal planning — four decisions, not decision fatigue. Kindora navigates the broken systems so families don't have to.",
+  "theme_color": "#0E6B43",
+  "background_color": "#FBF8F2",
   "display": "standalone",
   "start_url": "/",
   "scope": "/",

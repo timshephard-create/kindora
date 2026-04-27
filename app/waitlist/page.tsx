@@ -71,7 +71,7 @@ export default function WaitlistPage() {
           <p className="mb-4 text-sm font-medium uppercase tracking-widest text-white/50">
             &#10024; {PLATFORM.brandName} Premium
           </p>
-          <h1 className="mb-6 font-heading text-4xl font-bold leading-tight text-white sm:text-5xl">
+          <h1 className="mb-6 font-display text-4xl font-bold leading-tight text-white sm:text-5xl">
             Be first when {PLATFORM.name} Premium launches
           </h1>
           <p className="mx-auto max-w-lg text-lg leading-relaxed text-white/70">
@@ -83,7 +83,7 @@ export default function WaitlistPage() {
 
       {/* Feature cards */}
       <section className="mx-auto max-w-3xl px-5 py-12 sm:py-16">
-        <h2 className="mb-8 text-center font-heading text-2xl font-bold text-charcoal">
+        <h2 className="mb-8 text-center font-display text-2xl font-bold text-charcoal">
           What&apos;s included
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -91,7 +91,7 @@ export default function WaitlistPage() {
             <div key={f.tool} className={`rounded-2xl border ${f.color} p-5`}>
               <div className="mb-2 flex items-center gap-2">
                 <span className="text-xl">{f.icon}</span>
-                <h3 className="font-heading text-base font-bold text-charcoal">{f.tool}</h3>
+                <h3 className="font-display text-base font-bold text-charcoal">{f.tool}</h3>
               </div>
               <p className="text-sm leading-relaxed text-mid">{f.description}</p>
             </div>
@@ -105,14 +105,14 @@ export default function WaitlistPage() {
           {status === 'success' ? (
             <div className="py-4 text-center">
               <div className="mb-3 text-3xl">&#10003;</div>
-              <p className="font-heading text-lg font-bold text-charcoal">You&apos;re on the list!</p>
+              <p className="font-display text-lg font-bold text-charcoal">You&apos;re on the list!</p>
               <p className="mt-1 text-sm text-mid">
                 We&apos;ll email you when Premium launches with founding member pricing.
               </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
-              <h3 className="mb-1 font-heading text-lg font-bold text-charcoal">
+              <h3 className="mb-1 font-display text-lg font-bold text-charcoal">
                 Join the founding member waitlist
               </h3>
               <p className="mb-4 text-sm text-mid">

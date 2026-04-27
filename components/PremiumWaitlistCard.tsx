@@ -93,7 +93,7 @@ export default function PremiumWaitlistCard({ toolId }: { toolId: string }) {
     >
       <div className="mb-4 flex items-center gap-2">
         <span className="text-xl">&#10024;</span>
-        <h3 className="font-heading text-lg font-bold text-charcoal">{content.headline}</h3>
+        <h3 className="font-display text-lg font-bold text-charcoal">{content.headline}</h3>
       </div>
 
       <p className="mb-4 text-sm leading-relaxed text-mid">{content.body}</p>

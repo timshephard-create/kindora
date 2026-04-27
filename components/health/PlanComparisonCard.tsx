@@ -46,7 +46,7 @@ export default function PlanComparisonCard({ recommendation, hsaAnalysis }: Prop
         <div className="mb-3 flex items-center gap-2">
           <span className="rounded-full bg-sky px-3 py-1 text-xs font-bold text-white">Best for your family</span>
         </div>
-        <h3 className="mb-1 font-heading text-xl font-bold text-charcoal">{winner.plan.name}</h3>
+        <h3 className="mb-1 font-display text-xl font-bold text-charcoal">{winner.plan.name}</h3>
         <p className="mb-4 text-xs text-mid">{winner.plan.issuer}</p>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Stat label="Annual Premium" value={fmt(winner.annualPremium)} />

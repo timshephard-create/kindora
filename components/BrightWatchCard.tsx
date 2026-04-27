@@ -32,7 +32,7 @@ function ScoreRing({ score }: { score: number }) {
           className={`stroke-current ${color}`}
         />
       </svg>
-      <span className={`absolute font-heading text-lg font-bold ${color}`}>
+      <span className={`absolute font-display text-lg font-bold ${color}`}>
         {score}
       </span>
     </div>
@@ -58,7 +58,7 @@ export default function BrightWatchCard({
         <ScoreRing score={rec.score} />
         <div className="flex-1">
           <div className="mb-1 flex items-center gap-2">
-            <h3 className="font-heading text-lg font-bold text-charcoal">
+            <h3 className="font-display text-lg font-bold text-charcoal">
               {rec.name}
             </h3>
           </div>

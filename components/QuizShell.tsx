@@ -187,7 +187,7 @@ export default function QuizShell({ toolColor, toolId, questions, onComplete }: 
           exit={{ opacity: 0, x: direction * -30 }}
           transition={{ duration: 0.25, ease: 'easeInOut' }}
         >
-          <h2 className="mb-2 font-heading text-2xl font-bold text-charcoal sm:text-3xl">
+          <h2 className="mb-2 font-display text-2xl font-bold text-charcoal sm:text-3xl">
             {question.label}
           </h2>
           {question.helpText && (

@@ -10,7 +10,7 @@ export default function HubPage() {
           <p className="mb-4 text-sm font-medium uppercase tracking-widest text-white/50">
             &#10022; Family Navigation Platform
           </p>
-          <h1 className="mb-6 font-heading text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
+          <h1 className="mb-6 font-display text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
             {PLATFORM.tagline}
           </h1>
           <p className="mx-auto max-w-2xl text-lg leading-relaxed text-white/70">

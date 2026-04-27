@@ -1,37 +1,17 @@
+@import './styles/tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --cream: #FAF6F0;
-  --white: #FFFDF9;
-  --charcoal: #2C2C2C;
-  --mid: #6B6B6B;
-  --border: #E2DAD0;
-  --sage: #5C7A5A;
-  --sage-light: #8DAB8A;
-  --sage-pale: #EBF2EA;
-  --sky: #2D6280;
-  --sky-light: #6DA4C0;
-  --sky-pale: #E4F0F6;
-  --gold: #C9A84C;
-  --gold-dark: #9A7B2E;
-  --gold-pale: #F8F1DC;
-  --terra: #C4622D;
-  --terra-light: #D4845A;
-  --terra-pale: #F5EAE4;
-}
-
 body {
-  font-family: var(--font-body), 'DM Sans', sans-serif;
-  background-color: var(--cream);
-  color: var(--charcoal);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading), 'Playfair Display', serif;
+  font-family: var(--font-display);
 }
 
 /* Slider thumb styling */

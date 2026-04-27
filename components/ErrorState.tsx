@@ -12,7 +12,7 @@ export default function ErrorState({
   return (
     <div className="mx-auto max-w-md px-5 py-16 text-center">
       <div className="mb-4 text-4xl">&#128533;</div>
-      <h2 className="mb-2 font-heading text-xl font-bold text-charcoal">
+      <h2 className="mb-2 font-display text-xl font-bold text-charcoal">
         Oops — we hit a snag
       </h2>
       <p className="mb-6 text-sm text-mid">{message}</p>

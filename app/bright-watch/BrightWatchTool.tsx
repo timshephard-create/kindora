@@ -100,14 +100,14 @@ export default function BrightWatchTool() {
       <div className="min-h-screen bg-cream">
         <div className="bg-gold-pale px-5 py-8 text-center">
           <span className="text-3xl">{tool.icon}</span>
-          <h1 className="mt-2 font-heading text-3xl font-bold text-charcoal">{tool.name}</h1>
+          <h1 className="mt-2 font-display text-3xl font-bold text-charcoal">{tool.name}</h1>
           <p className="mt-1 text-sm text-mid">Media that works FOR your child&apos;s development &mdash; not against it</p>
         </div>
 
         {/* AAP Screen Time Guidelines */}
         <div className="mx-auto max-w-xl px-5 pt-6" data-testid="aap-guidelines">
           <div className="rounded-2xl border border-gold/30 bg-white p-5">
-            <h3 className="mb-1 font-heading text-base font-bold text-charcoal">AAP Screen Time Guidelines</h3>
+            <h3 className="mb-1 font-display text-base font-bold text-charcoal">AAP Screen Time Guidelines</h3>
             <p className="mb-4 text-xs text-mid">American Academy of Pediatrics recommendations</p>
             <div className="space-y-3">
               <div className="flex items-start gap-3">
@@ -179,7 +179,7 @@ export default function BrightWatchTool() {
       )}
 
       <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12" data-testid="results-container">
-        <h1 className="mb-2 font-heading text-3xl font-bold text-charcoal sm:text-4xl">
+        <h1 className="mb-2 font-display text-3xl font-bold text-charcoal sm:text-4xl">
           Your Recommendations
         </h1>
         <p className="mb-8 text-sm text-mid">
@@ -208,7 +208,7 @@ export default function BrightWatchTool() {
         {/* What to Avoid */}
         {results.avoid && (
           <section className="mt-8 rounded-2xl border border-gold/30 bg-gold-pale p-6">
-            <h2 className="mb-3 flex items-center gap-2 font-heading text-lg font-bold text-gold-dark">
+            <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-bold text-gold-dark">
               <span>&#9888;</span> What to Avoid
             </h2>
             <p className="text-sm leading-relaxed text-charcoal">{results.avoid}</p>
