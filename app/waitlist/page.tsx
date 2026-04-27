@@ -66,7 +66,7 @@ export default function WaitlistPage() {
   return (
     <div className="min-h-screen bg-cream">
       {/* Hero */}
-      <section className="bg-charcoal px-5 py-16 sm:py-24">
+      <section className="bg-brand px-5 py-16 sm:py-24">
         <div className="mx-auto max-w-2xl text-center">
           <p className="mb-4 text-sm font-medium uppercase tracking-widest text-white/50">
             &#10024; {PLATFORM.brandName} Premium
