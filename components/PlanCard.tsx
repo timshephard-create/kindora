@@ -17,7 +17,7 @@ export default function PlanCard({ plan }: { plan: PlanRecommendation }) {
         </span>
       </div>
 
-      <h3 className="mb-2 font-heading text-xl font-bold text-charcoal">{plan.name}</h3>
+      <h3 className="mb-2 font-display text-xl font-bold text-charcoal">{plan.name}</h3>
       <p className="mb-4 text-sm leading-relaxed text-mid">{plan.why}</p>
 
       <div className="mb-4">

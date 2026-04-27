@@ -25,7 +25,7 @@ export default function HubCard({ tool }: { tool: ToolConfig }) {
         </span>
       </div>
 
-      <h3 className="mb-2 font-heading text-2xl font-bold text-charcoal">
+      <h3 className="mb-2 font-display text-2xl font-bold text-charcoal">
         {tool.name}
       </h3>
 

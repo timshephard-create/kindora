@@ -44,7 +44,7 @@ export default function SliderInput({
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <span className="font-heading text-4xl font-bold text-charcoal">
+        <span className="font-display text-4xl font-bold text-charcoal">
           {formatValue(localValue)}
         </span>
       </div>

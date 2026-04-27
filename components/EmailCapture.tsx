@@ -82,7 +82,7 @@ export default function EmailCapture({ tool, profileSummary, emailResultsData, o
           {status === 'success' ? (
             <div className="py-4 text-center">
               <div className="mb-3 text-3xl">&#10003;</div>
-              <p className="font-heading text-lg font-bold text-charcoal">
+              <p className="font-display text-lg font-bold text-charcoal">
                 Check your inbox!
               </p>
               <p className="mt-1 text-sm text-mid">
@@ -91,7 +91,7 @@ export default function EmailCapture({ tool, profileSummary, emailResultsData, o
             </div>
           ) : (
             <>
-              <h3 className="mb-2 font-heading text-xl font-bold text-charcoal">
+              <h3 className="mb-2 font-display text-xl font-bold text-charcoal">
                 Get your results by email
               </h3>
               <p className="mb-6 text-sm text-mid">

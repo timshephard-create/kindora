@@ -5,7 +5,7 @@ const BREVO_FROM_EMAIL = process.env.BREVO_FROM_EMAIL || PLATFORM.email.fromEmai
 const BREVO_FROM_NAME = process.env.BREVO_FROM_NAME || PLATFORM.email.fromName;
 
 const SITE_URL = 'https://kindora.world';
-const BRAND_COLOR = '#5C7A5A';
+const BRAND_COLOR = '#0E6B43';
 
 export interface EmailResultsData {
   // Sprout

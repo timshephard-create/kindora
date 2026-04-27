@@ -1,7 +1,7 @@
 export const PLATFORM = {
   name: 'Kindora',
   brandName: 'Kindora World',
-  tagline: 'The systems are broken. We help you navigate them.',
+  tagline: 'Decisions, not decision fatigue.',
   description:
     'Four tools to help your family find care, understand your health options, protect your kids\u2019 screen time, and eat well on a budget.',
   domain: 'kindora.world',

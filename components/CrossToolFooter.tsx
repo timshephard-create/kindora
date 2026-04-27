@@ -14,7 +14,7 @@ export default function CrossToolFooter({ currentToolId }: { currentToolId: stri
 
   return (
     <section className="mt-12 border-t border-border pt-8">
-      <h3 className="mb-2 text-center font-heading text-xl font-bold text-charcoal">
+      <h3 className="mb-2 text-center font-display text-xl font-bold text-charcoal">
         Explore more from {PLATFORM.name}
       </h3>
       <p className="mb-6 text-center text-sm text-mid">
@@ -29,7 +29,7 @@ export default function CrossToolFooter({ currentToolId }: { currentToolId: stri
           >
             <div className="mb-2 flex items-center gap-2">
               <span className="text-xl">{tool.icon}</span>
-              <span className="font-heading text-lg font-bold text-charcoal">
+              <span className="font-display text-lg font-bold text-charcoal">
                 {tool.name}
               </span>
             </div>

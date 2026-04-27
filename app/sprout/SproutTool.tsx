@@ -210,7 +210,7 @@ export default function SproutTool() {
       <div className="min-h-screen bg-cream">
         <div className="bg-sage-pale px-5 py-8 text-center">
           <span className="text-3xl">{tool.icon}</span>
-          <h1 className="mt-2 font-heading text-3xl font-bold text-charcoal">{tool.name}</h1>
+          <h1 className="mt-2 font-display text-3xl font-bold text-charcoal">{tool.name}</h1>
           <p className="mt-1 text-sm text-mid">{tool.badge} Navigator</p>
         </div>
         <QuizShell
@@ -260,7 +260,7 @@ export default function SproutTool() {
       )}
 
       <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12" data-testid="results-container">
-        <h1 className="mb-2 font-heading text-3xl font-bold text-charcoal sm:text-4xl">
+        <h1 className="mb-2 font-display text-3xl font-bold text-charcoal sm:text-4xl">
           {results.isGapMode ? 'Gap Care Options' : 'Your Childcare Matches'}
         </h1>
         <p className="mb-8 text-sm text-mid">
@@ -296,7 +296,7 @@ export default function SproutTool() {
 
         {/* How to actually get your subsidy */}
         <section className="mt-10 rounded-2xl border border-sage-light/30 bg-sage-pale/40 p-6" data-testid="subsidy-next-steps">
-          <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">How to Actually Get Your Subsidy</h2>
+          <h2 className="mb-1 font-display text-xl font-bold text-charcoal">How to Actually Get Your Subsidy</h2>
           <p className="mb-6 text-sm text-mid">Finding a provider is step one. Here&apos;s how to make the savings real.</p>
 
           <div className="space-y-6">

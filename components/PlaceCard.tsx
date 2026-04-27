@@ -39,7 +39,7 @@ export default function PlaceCard({ place, affiliateUrl }: PlaceCardProps) {
   return (
     <div className="rounded-2xl border border-border bg-white p-5 transition-shadow hover:shadow-md">
       <div className="mb-3 flex items-start justify-between">
-        <h3 className="font-heading text-lg font-bold text-charcoal">{place.name}</h3>
+        <h3 className="font-display text-lg font-bold text-charcoal">{place.name}</h3>
         <StarRating rating={place.rating} />
       </div>
 

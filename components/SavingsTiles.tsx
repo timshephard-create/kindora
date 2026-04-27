@@ -17,7 +17,7 @@ const tiles = [
 export default function SavingsTiles({ savings }: { savings: SavingsBreakdown }) {
   return (
     <div className="mb-8">
-      <h3 className="mb-4 font-heading text-xl font-bold text-charcoal">
+      <h3 className="mb-4 font-display text-xl font-bold text-charcoal">
         Your estimated annual savings
       </h3>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -31,7 +31,7 @@ export default function SavingsTiles({ savings }: { savings: SavingsBreakdown })
                 <p className="text-xs font-medium uppercase tracking-wider text-sage">
                   {tile.label}
                 </p>
-                <p className="mt-1 font-heading text-2xl font-bold text-sage">
+                <p className="mt-1 font-display text-2xl font-bold text-sage">
                   {formatCurrency(savings[tile.key])}
                 </p>
                 <p className="mt-1 text-xs text-mid">{tile.description}</p>
@@ -43,7 +43,7 @@ export default function SavingsTiles({ savings }: { savings: SavingsBreakdown })
         <p className="text-xs font-medium uppercase tracking-wider text-white/80">
           Total potential savings
         </p>
-        <p className="mt-1 font-heading text-3xl font-bold text-white">
+        <p className="mt-1 font-display text-3xl font-bold text-white">
           {formatCurrency(savings.total)}
         </p>
         <p className="mt-1 text-xs text-white/60">per year</p>

@@ -304,7 +304,7 @@ function RealPlanCard({ plan }: { plan: CMSPlanResult }) {
         <span className={`rounded-full px-3 py-1 text-xs font-bold ${metalClass}`}>{plan.metalLevel}</span>
         <span className="text-xs text-mid">{plan.type}</span>
       </div>
-      <h3 className="mb-1 font-heading text-lg font-bold text-charcoal">{plan.name}</h3>
+      <h3 className="mb-1 font-display text-lg font-bold text-charcoal">{plan.name}</h3>
       <p className="mb-3 text-xs text-mid">{plan.issuer}</p>
       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div><p className="text-xs text-mid">Monthly</p>{hasSubsidy ? (<><p className="text-sm font-bold text-sky">{fmt(plan.monthlyWithSubsidy)}<span className="text-xs font-normal">/mo</span></p><p className="text-xs text-mid line-through">{fmt(plan.monthlyPremium)}/mo</p></>) : (<p className="text-sm font-bold text-charcoal">{fmt(plan.monthlyPremium)}<span className="text-xs font-normal">/mo</span></p>)}</div>
@@ -329,7 +329,7 @@ function OptionCard({ title, bestFor, pros, cons, ctaLabel, ctaUrl, note }: {
 }) {
   return (
     <div className="rounded-2xl border border-border bg-white p-5">
-      <h3 className="mb-1 font-heading text-base font-bold text-charcoal">{title}</h3>
+      <h3 className="mb-1 font-display text-base font-bold text-charcoal">{title}</h3>
       <p className="mb-3 text-xs italic text-mid">{bestFor}</p>
       <ul className="mb-2 space-y-1">{pros.map((p, i) => <li key={i} className="flex items-start gap-2 text-xs text-charcoal"><span className="mt-0.5 text-sage">&#10003;</span>{p}</li>)}</ul>
       {cons && cons.length > 0 && <ul className="mb-3 space-y-1">{cons.map((c, i) => <li key={i} className="flex items-start gap-2 text-xs text-mid"><span className="mt-0.5 text-gold-dark">&#9888;</span>{c}</li>)}</ul>}
@@ -365,11 +365,11 @@ function RoutingCards({ answers }: { answers: Record<string, string | string[] |
 
   return (
     <div className="mb-8 space-y-4">
-      <h2 className="font-heading text-xl font-bold text-charcoal">Important for your situation</h2>
+      <h2 className="font-display text-xl font-bold text-charcoal">Important for your situation</h2>
 
       {showChip && (
         <div className="rounded-2xl border-2 border-sage bg-sage-pale p-5" data-testid="chip-card">
-          <h3 className="mb-2 font-heading text-base font-bold text-sage">Your kids may qualify for CHIP</h3>
+          <h3 className="mb-2 font-display text-base font-bold text-sage">Your kids may qualify for CHIP</h3>
           <p className="mb-3 text-sm leading-relaxed text-charcoal">
             In Texas, families earning up to about $60,000 for a family of 4 may qualify for free or low-cost coverage for their children through the Children&apos;s Health Insurance Program, regardless of your own insurance situation. We recommend checking CHIP eligibility first &mdash; it&apos;s often free.
           </p>
@@ -380,7 +380,7 @@ function RoutingCards({ answers }: { answers: Record<string, string | string[] |
 
       {showCobra && (
         <div className="rounded-2xl border-2 border-gold bg-gold-pale p-5" data-testid="cobra-card">
-          <h3 className="mb-2 font-heading text-base font-bold text-gold-dark">You have a COBRA decision to make</h3>
+          <h3 className="mb-2 font-display text-base font-bold text-gold-dark">You have a COBRA decision to make</h3>
           <p className="mb-2 text-sm leading-relaxed text-charcoal">
             When you lose employer coverage, you have 60 days to elect COBRA &mdash; which lets you keep your exact same plan and doctors. After 60 days, that window closes permanently.
           </p>
@@ -398,7 +398,7 @@ function RoutingCards({ answers }: { answers: Record<string, string | string[] |
         <div className="rounded-2xl border-2 border-[#B85C3A] bg-[#FDF0EC] p-5" data-testid="coverage-gap-card">
           {isTexas ? (
             <>
-              <h3 className="mb-2 font-heading text-base font-bold text-[#B85C3A]">Texas coverage gap &mdash; know your options</h3>
+              <h3 className="mb-2 font-display text-base font-bold text-[#B85C3A]">Texas coverage gap &mdash; know your options</h3>
               <p className="mb-2 text-sm leading-relaxed text-charcoal">
                 Texas has not expanded Medicaid under the ACA. If your household income is below about $31,000 for a family of 4, you may fall into the &ldquo;coverage gap&rdquo; &mdash; earning too much for traditional Medicaid but too little for meaningful marketplace subsidies.
               </p>
@@ -413,7 +413,7 @@ function RoutingCards({ answers }: { answers: Record<string, string | string[] |
             </>
           ) : (
             <>
-              <h3 className="mb-2 font-heading text-base font-bold text-sage">Your state expanded Medicaid</h3>
+              <h3 className="mb-2 font-display text-base font-bold text-sage">Your state expanded Medicaid</h3>
               <p className="mb-2 text-sm leading-relaxed text-charcoal">
                 Based on your income, you may qualify for free or low-cost Medicaid coverage. Your state expanded Medicaid under the ACA, which means adults at your income level are eligible.
               </p>
@@ -448,7 +448,7 @@ function AllOptionsSection({ answers }: { answers: Record<string, string | strin
 
   return (
     <section className="mt-10">
-      <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">All Your Options</h2>
+      <h2 className="mb-4 font-display text-xl font-bold text-charcoal">All Your Options</h2>
       <div className="space-y-4">
         {employer !== 'good' && (
           <OptionCard title="ACA Marketplace Plans" bestFor="Best for: Most uninsured families"
@@ -495,7 +495,7 @@ function AllOptionsSection({ answers }: { answers: Record<string, string | strin
         {/* Part 5 — Two-Plan Strategy */}
         {showSplitCoverage && (
           <div className="rounded-2xl border-2 border-sky-light bg-sky-pale p-5">
-            <h3 className="mb-1 font-heading text-base font-bold text-sky">Split Coverage Strategy</h3>
+            <h3 className="mb-1 font-display text-base font-bold text-sky">Split Coverage Strategy</h3>
             <p className="mb-2 text-xs italic text-mid">Best for: Couples with different health needs or income situations</p>
             <p className="mb-2 text-sm text-charcoal">Each person in a household can be on a different insurance plan. This is legal and sometimes optimal.</p>
             <p className="mb-1 text-xs font-semibold text-charcoal">When it makes sense:</p>
@@ -531,7 +531,7 @@ function CashPaySection({ costResult }: { costResult: HealthCostResult }) {
 
   return (
     <section className="mt-10" data-testid="cash-pay-section">
-      <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">Should you pay cash or use insurance?</h2>
+      <h2 className="mb-4 font-display text-xl font-bold text-charcoal">Should you pay cash or use insurance?</h2>
       {underDeductible ? (
         <div className="rounded-2xl border border-border bg-white p-5">
           <p className="mb-3 text-sm leading-relaxed text-charcoal">
@@ -587,7 +587,7 @@ function CashPaySection({ costResult }: { costResult: HealthCostResult }) {
 function HSAGuide({ hsaAnalysis }: { hsaAnalysis: HealthCostResult['hsaAnalysis'] }) {
   return (
     <section className="mt-10" data-testid="hsa-guide">
-      <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">HSA Strategies most people don&apos;t know about</h2>
+      <h2 className="mb-4 font-display text-xl font-bold text-charcoal">HSA Strategies most people don&apos;t know about</h2>
       <div className="space-y-4">
         {/* Strategy 1 */}
         <div className="rounded-2xl border border-sage-light/40 bg-sage-pale p-5">
@@ -750,7 +750,7 @@ export default function HealthGuideTool() {
       <div className="min-h-screen bg-cream">
         <div className="bg-sky-pale px-5 py-8 text-center">
           <span className="text-3xl">{tool.icon}</span>
-          <h1 className="mt-2 font-heading text-3xl font-bold text-charcoal">{tool.name}</h1>
+          <h1 className="mt-2 font-display text-3xl font-bold text-charcoal">{tool.name}</h1>
           <p className="mt-1 text-sm text-mid">{tool.badge} Navigator</p>
         </div>
         <QuizShell toolColor={tool.color} toolId={tool.id} questions={questions} onComplete={handleComplete} />
@@ -804,7 +804,7 @@ export default function HealthGuideTool() {
       )}
 
       <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12" data-testid="results-container">
-        <h1 className="mb-2 font-heading text-3xl font-bold text-charcoal sm:text-4xl">Your Plan Analysis</h1>
+        <h1 className="mb-2 font-display text-3xl font-bold text-charcoal sm:text-4xl">Your Plan Analysis</h1>
         <p className="mb-8 text-sm text-mid">Based on your profile, here are your best options.</p>
 
         {/* Part 1 — Routing Cards */}
@@ -833,7 +833,7 @@ export default function HealthGuideTool() {
         {/* Decision Engine Comparison */}
         {costResult && (
           <section className="mb-10">
-            <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">Cost Comparison</h2>
+            <h2 className="mb-1 font-display text-xl font-bold text-charcoal">Cost Comparison</h2>
             <p className="mb-4 text-sm text-mid">Based on your expected healthcare usage, prescriptions, and procedures.</p>
             <div data-testid="plan-comparison-card"><PlanComparisonCard recommendation={costResult.recommendation} hsaAnalysis={costResult.hsaAnalysis} /></div>
           </section>
@@ -844,13 +844,13 @@ export default function HealthGuideTool() {
           <>
             {/* Best path for coverage gap families */}
             <section className="mb-10">
-              <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">Your best path right now</h2>
+              <h2 className="mb-4 font-display text-xl font-bold text-charcoal">Your best path right now</h2>
               <div className="space-y-4">
                 {hasKidsResult && (
                   <div className="rounded-2xl border-2 border-sage bg-sage-pale p-5">
                     <div className="mb-2 flex items-center gap-2">
                       <span className="rounded-full bg-sage px-3 py-1 text-xs font-bold text-white">Step 1</span>
-                      <h3 className="font-heading text-base font-bold text-charcoal">CHIP for your children</h3>
+                      <h3 className="font-display text-base font-bold text-charcoal">CHIP for your children</h3>
                     </div>
                     <p className="mb-3 text-sm leading-relaxed text-charcoal">
                       Your children likely qualify for CHIP regardless of your own coverage situation. CHIP provides comprehensive pediatric coverage &mdash; often free or very low cost &mdash; including doctor visits, prescriptions, dental, and vision.
@@ -862,7 +862,7 @@ export default function HealthGuideTool() {
                 <div className="rounded-2xl border-2 border-sky bg-sky-pale p-5">
                   <div className="mb-2 flex items-center gap-2">
                     <span className="rounded-full bg-sky px-3 py-1 text-xs font-bold text-white">{hasKidsResult ? 'Step 2' : 'Step 1'}</span>
-                    <h3 className="font-heading text-base font-bold text-charcoal">Federally Qualified Health Centers for adults</h3>
+                    <h3 className="font-display text-base font-bold text-charcoal">Federally Qualified Health Centers for adults</h3>
                   </div>
                   <p className="mb-3 text-sm leading-relaxed text-charcoal">
                     FQHCs offer primary care, dental, mental health, and prescriptions on a sliding scale based on your income. They serve everyone &mdash; insured or uninsured &mdash; and are available in most Texas counties.
@@ -883,7 +883,7 @@ export default function HealthGuideTool() {
               <PlansSkeleton />
             ) : realPlans.length > 0 ? (
               <section className="mb-10 opacity-80">
-                <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">If your income changes</h2>
+                <h2 className="mb-1 font-display text-xl font-bold text-charcoal">If your income changes</h2>
                 <p className="mb-4 text-sm text-mid">These plans become available with subsidies if your income rises above the coverage gap threshold.</p>
                 <div className="space-y-4">{realPlans.map((plan) => <RealPlanCard key={plan.id} plan={plan} />)}</div>
               </section>
@@ -896,7 +896,7 @@ export default function HealthGuideTool() {
               <PlansSkeleton />
             ) : realPlans.length > 0 ? (
               <section className="mb-10">
-                <h2 className="mb-1 font-heading text-xl font-bold text-charcoal">Plans Available in Your Area</h2>
+                <h2 className="mb-1 font-display text-xl font-bold text-charcoal">Plans Available in Your Area</h2>
                 <p className="mb-4 text-sm text-mid">Real plans from Healthcare.gov &mdash; updated for {new Date().getFullYear()}</p>
                 <div className="space-y-4">{realPlans.map((plan) => <RealPlanCard key={plan.id} plan={plan} />)}</div>
                 <p className="mt-3 text-xs leading-relaxed text-mid">
@@ -907,7 +907,7 @@ export default function HealthGuideTool() {
 
             {/* Our Recommendation (deterministic) */}
             <section>
-              <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">Our Recommendation</h2>
+              <h2 className="mb-4 font-display text-xl font-bold text-charcoal">Our Recommendation</h2>
               <div className="space-y-6">{plans.map((plan, i) => <PlanCard key={i} plan={plan} />)}</div>
             </section>
           </>
@@ -924,7 +924,7 @@ export default function HealthGuideTool() {
 
         {/* Key Terms */}
         <section className="mt-12">
-          <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">Key Terms Glossary</h2>
+          <h2 className="mb-4 font-display text-xl font-bold text-charcoal">Key Terms Glossary</h2>
           <div className="space-y-3">{KEY_TERMS.map((item) => (
             <div key={item.term} className="rounded-xl border border-border bg-white p-4">
               <p className="text-sm font-semibold text-charcoal">{item.term}</p>
@@ -935,7 +935,7 @@ export default function HealthGuideTool() {
 
         {/* Action Strip */}
         <section className="mt-8 rounded-2xl bg-charcoal p-6 sm:p-8">
-          <h2 className="mb-4 font-heading text-xl font-bold text-white">Ready to take action?</h2>
+          <h2 className="mb-4 font-display text-xl font-bold text-white">Ready to take action?</h2>
           <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <a href="https://www.healthcare.gov" target="_blank" rel="noopener noreferrer" className="rounded-xl bg-sky px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-sky-light">Browse ACA Plans &rarr;</a>
             <a href="https://www.medicaid.gov/about-us/beneficiary-resources/index.html" target="_blank" rel="noopener noreferrer" className="rounded-xl bg-white/10 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/20">Check Medicaid Eligibility</a>

@@ -124,7 +124,7 @@ function MealDayCard({ day, expanded, onToggle }: { day: NourishDay; expanded: b
         onClick={onToggle}
         className="flex w-full items-center justify-between px-5 py-4 text-left"
       >
-        <span className="font-heading text-lg font-bold text-charcoal">{day.day}</span>
+        <span className="font-display text-lg font-bold text-charcoal">{day.day}</span>
         <span className="text-mid transition-transform" style={{ transform: expanded ? 'rotate(180deg)' : '' }}>
           &#9660;
         </span>
@@ -202,7 +202,7 @@ function StoreCard({ store, shopUrl, searchItem }: { store: NearbyStore; shopUrl
   return (
     <div className="rounded-xl border border-border bg-white p-5">
       <div className="mb-1 flex items-start justify-between">
-        <h4 className="font-heading text-base font-bold text-charcoal">{store.chain}</h4>
+        <h4 className="font-display text-base font-bold text-charcoal">{store.chain}</h4>
         <span className="text-xs text-mid whitespace-nowrap">{store.distance}</span>
       </div>
       {store.name !== store.chain && (
@@ -323,7 +323,7 @@ export default function NourishTool() {
       <div className="min-h-screen bg-cream">
         <div className="bg-terra-pale px-5 py-8 text-center">
           <span className="text-3xl">{tool.icon}</span>
-          <h1 className="mt-2 font-heading text-3xl font-bold text-charcoal">{tool.name}</h1>
+          <h1 className="mt-2 font-display text-3xl font-bold text-charcoal">{tool.name}</h1>
           <p className="mt-1 text-sm text-mid">{tool.badge} Navigator</p>
         </div>
         <QuizShell
@@ -365,7 +365,7 @@ export default function NourishTool() {
       )}
 
       <div className="mx-auto max-w-3xl px-5 py-8 sm:py-12" data-testid="results-container">
-        <h1 className="mb-2 font-heading text-3xl font-bold text-charcoal sm:text-4xl">
+        <h1 className="mb-2 font-display text-3xl font-bold text-charcoal sm:text-4xl">
           Your Weekly Meal Plan
         </h1>
         <p className="mb-8 text-sm text-mid">
@@ -384,7 +384,7 @@ export default function NourishTool() {
           <p className="text-xs font-medium uppercase tracking-wider text-white/70">
             Estimated weekly grocery cost
           </p>
-          <p className="mt-1 font-heading text-4xl font-bold">{results.weeklyTotal}</p>
+          <p className="mt-1 font-display text-4xl font-bold">{results.weeklyTotal}</p>
           <p className="mt-1 text-sm text-white/80">
             {isUnderBudget
               ? `That\u2019s $${(userBudget - budgetNum).toFixed(0)} under your $${userBudget} budget`
@@ -397,14 +397,14 @@ export default function NourishTool() {
           <StoreSkeleton />
         ) : (
           <section className="mb-8">
-            <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">
+            <h2 className="mb-4 font-display text-xl font-bold text-charcoal">
               Where to Shop
             </h2>
 
             {/* Split Shopping Plan */}
             {results.splitShoppingPlan && (
               <div className="mb-4 rounded-2xl border border-terra-light/30 bg-terra-pale p-6">
-                <h3 className="mb-2 flex items-center gap-2 font-heading text-base font-bold text-terra">
+                <h3 className="mb-2 flex items-center gap-2 font-display text-base font-bold text-terra">
                   <span>&#128161;</span> Your Shopping Strategy
                 </h3>
                 <p className="text-sm leading-relaxed text-charcoal">
@@ -473,7 +473,7 @@ export default function NourishTool() {
 
         {/* ===== 7-DAY PLAN ===== */}
         <section className="mb-8">
-          <h2 className="mb-4 font-heading text-xl font-bold text-charcoal">
+          <h2 className="mb-4 font-display text-xl font-bold text-charcoal">
             7-Day Plan
           </h2>
           <div className="space-y-3">
@@ -491,7 +491,7 @@ export default function NourishTool() {
         {/* ===== SHOPPING LIST ===== */}
         <section className="mb-8">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-heading text-xl font-bold text-charcoal">
+            <h2 className="font-display text-xl font-bold text-charcoal">
               Shopping List
             </h2>
             <div className="flex gap-2">
@@ -539,7 +539,7 @@ export default function NourishTool() {
         {/* Savings Tips */}
         {results.savingsTips && results.savingsTips.length > 0 && (
           <section className="mb-8 rounded-2xl border border-terra-light/30 bg-terra-pale p-6">
-            <h2 className="mb-4 flex items-center gap-2 font-heading text-lg font-bold text-terra">
+            <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-bold text-terra">
               <span>&#128161;</span> Savings Tips
             </h2>
             <ul className="space-y-2">
