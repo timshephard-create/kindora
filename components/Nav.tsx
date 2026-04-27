@@ -10,7 +10,7 @@ export default function Nav() {
   const isHub = pathname === '/';
 
   return (
-    <nav className="sticky top-0 z-50 bg-brand">
+    <nav className="sticky top-0 z-50 bg-clover">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
         <Link
           href="/"

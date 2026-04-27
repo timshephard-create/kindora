@@ -5,7 +5,7 @@ export default function HubPage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-brand px-5 py-16 sm:py-24">
+      <section className="bg-clover px-5 py-16 sm:py-24">
         <div className="mx-auto max-w-3xl text-center">
           <p className="mb-4 text-sm font-medium uppercase tracking-widest text-white/50">
             &#10022; Family Navigation Platform
