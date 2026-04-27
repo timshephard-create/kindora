@@ -934,7 +934,7 @@ export default function HealthGuideTool() {
         </section>
 
         {/* Action Strip */}
-        <section className="mt-8 rounded-2xl bg-charcoal p-6 sm:p-8">
+        <section className="mt-8 rounded-2xl bg-brand p-6 sm:p-8">
           <h2 className="mb-4 font-display text-xl font-bold text-white">Ready to take action?</h2>
           <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <a href="https://www.healthcare.gov" target="_blank" rel="noopener noreferrer" className="rounded-xl bg-sky px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-sky-light">Browse ACA Plans &rarr;</a>
