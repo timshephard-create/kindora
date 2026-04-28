@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { PLATFORM, getToolByRoute } from '@/config/platform';
+import { getToolByRoute } from '@/config/platform';
 
 export default function Nav() {
   const pathname = usePathname();
@@ -16,7 +16,7 @@ export default function Nav() {
           href="/"
           className="font-display text-xl font-bold tracking-tight text-white"
         >
-          {PLATFORM.name}
+          kindora<span className="text-apricot">.</span>
         </Link>
 
         {!isHub && currentTool && (
